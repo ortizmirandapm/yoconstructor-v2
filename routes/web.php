@@ -17,12 +17,20 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//Ruta ofertas
+Route::get('/ofertas', [\App\Http\Controllers\OfertaPublicaController::class, 'index'])->name('ofertas.index');
+Route::get('/ofertas/{oferta}', [\App\Http\Controllers\OfertaPublicaController::class, 'show'])->name('ofertas.show');
+
+
 // Trabajador
 Route::middleware(['auth', 'es.trabajador'])->prefix('trabajador')->name('trabajador.')->group(function () {
     Route::get('/dashboard', fn() => view('trabajador.dashboard'))->name('dashboard');
     Route::get('/perfil', [\App\Http\Controllers\Trabajador\PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [\App\Http\Controllers\Trabajador\PerfilController::class, 'update'])->name('perfil.update');
-
+    Route::get('/postulaciones', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'index'])->name('postulaciones.index');
+    //ofertas 
+    Route::get('/ofertas/{oferta}/postular', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'crear'])->name('postulaciones.crear');
+    Route::post('/ofertas/{oferta}/postular', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'store'])->name('postulaciones.store');
     // Notificaciones
     Route::get('/notificaciones', [\App\Http\Controllers\Trabajador\NotificacionController::class, 'index'])->name('notificaciones.index');
     Route::post('/notificaciones/{id}/leer', [\App\Http\Controllers\Trabajador\NotificacionController::class, 'marcarLeida'])->name('notificaciones.leer');
@@ -39,6 +47,8 @@ Route::get('/api/localidades/{provincia}', function (\App\Models\Provincia $prov
 Route::middleware(['auth', 'es.empresa'])->prefix('empresa')->name('empresa.')->group(function () {
     Route::get('/dashboard', fn() => view('empresa.dashboard'))->name('dashboard');
     Route::resource('ofertas', \App\Http\Controllers\Empresa\OfertaController::class);
+    Route::get('/postulaciones', [\App\Http\Controllers\Empresa\PostulacionController::class, 'index'])->name('postulaciones.index');
+    Route::patch('/postulaciones/{postulacion}/estado', [\App\Http\Controllers\Empresa\PostulacionController::class, 'cambiarEstado'])->name('postulaciones.estado');
 });
 
 // Admin

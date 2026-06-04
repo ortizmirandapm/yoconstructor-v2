@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Postulacion;
 
 class Oferta extends Model
 {
@@ -45,5 +46,10 @@ class Oferta extends Model
     public function provincia()
     {
         return $this->belongsTo(Provincia::class);
+    }
+
+    public function postulaciones()
+    {
+        return $this->hasMany(Postulacion::class);
     }
 }
