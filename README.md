@@ -1,59 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# YoConstructor V2
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma de empleo para el sector de la construcción en Argentina, desarrollada en Laravel 11. Permite a empresas publicar ofertas laborales y a trabajadores postularse según sus especialidades, con notificaciones automáticas por matching.
 
-## About Laravel
+> Migración de [YoConstructor V1](https://github.com/ortizmirandapm/yoconstructor) — desarrollado originalmente en PHP vanilla/MySQL/TailwindCSS.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Características
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Registro diferenciado para **empresas** (CUIT) y **trabajadores** (DNI)
+- Publicación y gestión de ofertas laborales con especialidades, rubro, modalidad y rango salarial
+- Sistema de **notificaciones automáticas** por matching de especialidades (Laravel Observers)
+- Postulaciones con seguimiento de estado (Pendiente → Revisada → Entrevista → Aceptada/Rechazada)
+- Panel de administración con gestión de usuarios, empresas y ofertas
+- Página pública de ofertas con filtros por especialidad, provincia y modalidad
+- Perfil editable para empresas y trabajadores
+- Protección de recursos por tipo de usuario (middlewares + policies)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Backend:** Laravel 11, PHP 8.2
+- **Frontend:** Blade, TailwindCSS, Vite
+- **Base de datos:** MySQL
+- **Auth:** Laravel Breeze
+- **Notificaciones:** Laravel Notifications (driver: database)
+- **Herramientas:** Eloquent ORM, Observers, Policies, Seeders
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Instalación local
 
-### Premium Partners
+### Requisitos
+- PHP 8.2+
+- Composer
+- Node.js 18+
+- MySQL
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Pasos
 
-## Contributing
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/ortizmirandapm/yoconstructor-v2.git
+cd yoconstructor-v2
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 2. Instalar dependencias PHP
+composer install
 
-## Code of Conduct
+# 3. Instalar dependencias Node
+npm install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 4. Configurar el entorno
+cp .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+Editá el `.env` con tus credenciales de base de datos:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+DB_DATABASE=yoconstructor_v2
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## License
+```bash
+# 5. Crear las tablas y poblar datos iniciales
+php artisan migrate
+php artisan db:seed
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 6. Compilar assets
+npm run dev
+
+# 7. Levantar el servidor
+php artisan serve
+```
+
+La app queda disponible en `http://localhost:8000`.
+
+### Crear usuario admin
+
+```bash
+php artisan tinker
+```
+
+```php
+\App\Models\User::create([
+    'name'    => 'Admin',
+    'email'   => 'admin@yoconstructor.com',
+    'password' => bcrypt('password'),
+    'tipo'    => 'admin',
+    'estado'  => true,
+]);
+```
+
+---
+
+## Estructura de roles
+
+| Rol | Acceso |
+|-----|--------|
+| `trabajador` | Perfil, especialidades, postulaciones, notificaciones |
+| `empresa` | Ofertas CRUD, postulaciones recibidas, perfil de empresa |
+| `admin` | Panel de administración completo |
+
+---
+
+## Módulos principales
+
+```
+app/
+├── Http/Controllers/
+│   ├── Admin/          # AdminController, UsuarioController, EmpresaController, OfertaAdminController
+│   ├── Empresa/        # OfertaController, PostulacionController, PerfilController
+│   └── Trabajador/     # PostulacionController, PerfilController, NotificacionController
+├── Models/             # User, Empresa, Trabajador, Oferta, Especialidad, Postulacion...
+├── Observers/          # OfertaObserver — notificaciones automáticas por matching
+├── Notifications/      # NuevaOfertaMatch
+└── Policies/           # OfertaPolicy
+```
+
+---
+
+## Autor
+
+**Pablo Ortiz Miranda**
+- GitHub: [@ortizmirandapm](https://github.com/ortizmirandapm)
+- LinkedIn: [linkedin.com/in/ortizmirandapm](https://linkedin.com/in/ortizmirandapm)
+- Email: ortizmirandapm@gmail.com
+
+---
+
+## Versión anterior
+
+YoConstructor V1 — PHP vanilla, MySQL, TailwindCSS
+👉 [github.com/ortizmirandapm/yoconstructor](https://github.com/ortizmirandapm/yoconstructor)
