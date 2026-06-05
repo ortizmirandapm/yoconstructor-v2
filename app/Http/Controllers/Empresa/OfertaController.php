@@ -86,7 +86,10 @@ class OfertaController extends Controller
      */
     public function edit(Oferta $oferta)
     {
-        //$this->authorize('update', $oferta); // opcional por ahora
+        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
+            abort(403);
+        }
+      
         $especialidades = Especialidad::where('estado', true)->get();
         $rubros         = Rubro::where('estado', true)->get();
         $provincias     = Provincia::all();
@@ -98,6 +101,10 @@ class OfertaController extends Controller
      */
     public function update(Request $request, Oferta $oferta)
     {
+        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
+            abort(403);
+        }
+       
         $request->validate([
             'titulo'         => 'required|string|max:200',
             'descripcion'    => 'required|string',
@@ -117,11 +124,16 @@ class OfertaController extends Controller
         return redirect()->route('empresa.ofertas.index')->with('success', 'Oferta actualizada.');
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Oferta $oferta)
     {
+        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
+            abort(403);
+        }
+        
         $oferta->delete();
         return redirect()->route('empresa.ofertas.index')->with('success', 'Oferta eliminada.');
     }

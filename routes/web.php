@@ -49,6 +49,9 @@ Route::middleware(['auth', 'es.empresa'])->prefix('empresa')->name('empresa.')->
     Route::resource('ofertas', \App\Http\Controllers\Empresa\OfertaController::class);
     Route::get('/postulaciones', [\App\Http\Controllers\Empresa\PostulacionController::class, 'index'])->name('postulaciones.index');
     Route::patch('/postulaciones/{postulacion}/estado', [\App\Http\Controllers\Empresa\PostulacionController::class, 'cambiarEstado'])->name('postulaciones.estado');
+   
+    Route::get('/perfil', [\App\Http\Controllers\Empresa\PerfilController::class, 'edit'])->name('perfil.edit');
+    Route::put('/perfil', [\App\Http\Controllers\Empresa\PerfilController::class, 'update'])->name('perfil.update');
 });
 
 // Admin
