@@ -3,9 +3,15 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', App\Http\Controllers\WelcomeController::class)->name('home');
+
+Route::get('/nosotros', function () {
+    $totalTrabajadores = \App\Models\User::where('tipo', 'trabajador')->where('estado', true)->count();
+    $totalEmpresas     = \App\Models\Empresa::where('estado', 'activo')->count();
+    $totalOfertas      = \App\Models\Oferta::where('estado', 'Activa')->count();
+
+    return view('nosotros', compact('totalTrabajadores', 'totalEmpresas', 'totalOfertas'));
+})->name('nosotros');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

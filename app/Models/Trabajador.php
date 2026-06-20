@@ -18,6 +18,7 @@ class Trabajador extends Model
         'anios_experiencia',
         'localidad_preferencia_id',
         'provincia_preferencia_id',
+        'imagen_perfil',
     ];
 
     public function user()

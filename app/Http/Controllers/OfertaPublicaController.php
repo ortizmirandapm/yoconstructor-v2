@@ -12,9 +12,13 @@ class OfertaPublicaController extends Controller
     public function index()
     {
         $query = Oferta::with(['empresa', 'provincia', 'especialidades'])
-            ->where('estado', 'Activa');
+            ->where('estado', 'Activa')
+            ->withCount('postulaciones as total_postulantes');
 
-        // Filtros
+        if (request('rubro')) {
+            $query->where('rubro_id', request('rubro'));
+        }
+
         if (request('especialidad')) {
             $query->whereHas('especialidades', fn($q) =>
                 $q->where('especialidades.id', request('especialidad'))
@@ -29,15 +33,49 @@ class OfertaPublicaController extends Controller
             $query->where('modalidad', request('modalidad'));
         }
 
-        if (request('buscar')) {
-            $query->where('titulo', 'like', '%' . request('buscar') . '%');
+        if (request('contrato')) {
+            $query->where('tipo_contrato', request('contrato'));
         }
 
-        $ofertas        = $query->latest()->paginate(10)->withQueryString();
-        $especialidades = Especialidad::where('estado', true)->get();
-        $provincias     = Provincia::all();
+        if (request('buscar')) {
+            $buscar = request('buscar');
+            $query->where(function ($q) use ($buscar) {
+                $q->where('titulo', 'like', "%$buscar%")
+                  ->orWhere('descripcion', 'like', "%$buscar%")
+                  ->orWhereHas('empresa', fn($e) => $e->where('nombre_empresa', 'like', "%$buscar%"));
+            });
+        }
 
-        return view('ofertas.index', compact('ofertas', 'especialidades', 'provincias'));
+        $trabajadorId = null;
+        $prefProvincia = null;
+        $prefLocalidad = null;
+
+        if (auth()->check() && auth()->user()->tipo === 'trabajador') {
+            $trabajador = auth()->user()->trabajador;
+            $trabajadorId = $trabajador->id;
+            $prefProvincia = $trabajador->provincia_preferencia_id;
+            $prefLocalidad = $trabajador->localidad_preferencia_id;
+
+            $query->withCount(['postulaciones as ya_postulado' => fn($q) => $q->where('trabajador_id', $trabajadorId)]);
+        }
+
+        $ofertas = $query->latest()->paginate(10)->withQueryString();
+
+        $especialidades = Especialidad::where('estado', true)->orderBy('nombre')->get();
+        $provincias = Provincia::orderBy('nombre')->get();
+        $rubros = Rubro::where('estado', true)->orderBy('nombre')->get();
+        $tiposContrato = ['Tiempo completo', 'Medio tiempo', 'Por proyecto', 'Pasantía'];
+
+        return view('ofertas.index', compact(
+            'ofertas',
+            'especialidades',
+            'provincias',
+            'rubros',
+            'tiposContrato',
+            'trabajadorId',
+            'prefProvincia',
+            'prefLocalidad',
+        ));
     }
 
     public function show(Oferta $oferta)
@@ -47,16 +85,31 @@ class OfertaPublicaController extends Controller
         }
 
         $oferta->increment('visitas');
-        $oferta->load(['empresa', 'especialidades', 'provincia']);
+        $oferta->load(['empresa', 'especialidades', 'provincia', 'localidad']);
 
-        // Verificar si el trabajador ya se postuló
+        $totalPostulantes = $oferta->postulaciones()->count();
+
         $yaPostulado = false;
+        $trabajador = null;
+        $prefProvincia = null;
+        $prefLocalidad = null;
+
         if (auth()->check() && auth()->user()->tipo === 'trabajador') {
+            $trabajador = auth()->user()->trabajador;
             $yaPostulado = $oferta->postulaciones()
-                ->where('trabajador_id', auth()->user()->trabajador->id)
+                ->where('trabajador_id', $trabajador->id)
                 ->exists();
+            $prefProvincia = $trabajador->provincia_preferencia_id;
+            $prefLocalidad = $trabajador->localidad_preferencia_id;
         }
 
-        return view('ofertas.show', compact('oferta', 'yaPostulado'));
+        return view('ofertas.show', compact(
+            'oferta',
+            'yaPostulado',
+            'totalPostulantes',
+            'trabajador',
+            'prefProvincia',
+            'prefLocalidad',
+        ));
     }
 }

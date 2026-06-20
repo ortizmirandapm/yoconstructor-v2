@@ -26,4 +26,9 @@ class Empresa extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function rubro()
+    {
+        return $this->belongsTo(Rubro::class);
+    }
 }
