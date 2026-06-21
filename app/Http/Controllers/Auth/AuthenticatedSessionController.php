@@ -32,9 +32,9 @@ class AuthenticatedSessionController extends Controller
 
         return match ($tipo) {
             'empresa'    => redirect()->route('empresa.dashboard'),
-            'trabajador' => redirect()->route('trabajador.dashboard'),
+            'trabajador' => redirect()->route('home'),
             'admin'      => redirect()->route('admin.dashboard'),
-            default      => redirect()->route('dashboard'),
+            default      => redirect()->route('home'),
         };
     }
 

@@ -14,6 +14,12 @@ class Empresa extends Model
         'razon_social',
         'descripcion',
         'cuit',
+        'rubro_id',
+        'provincia_id',
+        'telefono',
+        'email_contacto',
+        'logo',
+        'domicilio',
         'estado',
     ];
 

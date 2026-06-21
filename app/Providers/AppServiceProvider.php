@@ -14,6 +14,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Oferta::observe(OfertaObserver::class);
 
-        View::composer('layouts.public-navbar', NavbarComposer::class);
+        View::composer(['layouts.public-navbar', 'layouts.navigation'], NavbarComposer::class);
     }
 }

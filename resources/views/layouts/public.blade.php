@@ -19,7 +19,6 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
-    @stack('scripts')
 </head>
 
 <body class="bg-white text-gray-800 font-sans antialiased">
@@ -45,6 +44,7 @@
         </div>
     </footer>
 
+    @stack('scripts')
 </body>
 
 </html>

@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Especialidad extends Model
 {
-    //
     protected $table = 'especialidades';
+
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'estado',
+    ];
 
     public function trabajadores()
     {
