@@ -7,7 +7,6 @@ use App\Models\Oferta;
 use App\Models\Postulacion;
 use Illuminate\Http\Request;
 
-
 class PostulacionController extends Controller
 {
     private function getTrabajador()
@@ -15,14 +14,28 @@ class PostulacionController extends Controller
         return auth()->user()->trabajador;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $postulaciones = Postulacion::with(['oferta.empresa', 'oferta.provincia'])
-            ->where('trabajador_id', $this->getTrabajador()->id)
-            ->latest()
-            ->paginate(10);
+        $trabajador    = $this->getTrabajador();
+        $filtroEstado  = $request->query('estado');
+        $estadosValidos = ['Pendiente', 'Revisada', 'Entrevista', 'Aceptada', 'Rechazada'];
 
-        return view('trabajador.postulaciones.index', compact('postulaciones'));
+        $query = Postulacion::with(['oferta.empresa', 'oferta.provincia', 'oferta.localidad'])
+            ->where('trabajador_id', $trabajador->id);
+
+        if ($filtroEstado && in_array($filtroEstado, $estadosValidos)) {
+            $query->where('estado', $filtroEstado);
+        }
+
+        $postulaciones = $query->latest()->paginate(10);
+
+        $counts = Postulacion::selectRaw('estado, COUNT(*) as total')
+            ->where('trabajador_id', $trabajador->id)
+            ->groupBy('estado')
+            ->pluck('total', 'estado')
+            ->toArray();
+
+        return view('trabajador.postulaciones.index', compact('postulaciones', 'filtroEstado', 'estadosValidos', 'counts'));
     }
 
 
@@ -45,7 +58,6 @@ class PostulacionController extends Controller
         return view('trabajador.postulaciones.crear', compact('oferta'));
     }
 
-    /**/
     
     public function store(Request $request, Oferta $oferta)
     {
@@ -62,5 +74,24 @@ class PostulacionController extends Controller
 
         return redirect()->route('trabajador.postulaciones.index')
             ->with('success', 'Te postulaste correctamente.');
+    }
+
+    public function cancelar(Postulacion $postulacion)
+    {
+        $trabajador = $this->getTrabajador();
+
+        if ($postulacion->trabajador_id !== $trabajador->id) {
+            abort(403);
+        }
+
+        if ($postulacion->estado !== 'Pendiente') {
+            return redirect()->route('trabajador.postulaciones.index')
+                ->with('error', 'Solo podés cancelar postulaciones en estado Pendiente.');
+        }
+
+        $postulacion->delete();
+
+        return redirect()->route('trabajador.postulaciones.index')
+            ->with('success', 'Postulación cancelada correctamente.');
     }
 }

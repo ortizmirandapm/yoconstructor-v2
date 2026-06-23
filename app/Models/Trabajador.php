@@ -19,6 +19,10 @@ class Trabajador extends Model
         'localidad_preferencia_id',
         'provincia_preferencia_id',
         'imagen_perfil',
+        'curriculum_pdf',
+        'domicilio',
+        'fecha_nacimiento',
+        'nombre_titulo',
     ];
 
     public function user()
@@ -40,5 +44,10 @@ class Trabajador extends Model
     public function provincia()
     {
         return $this->belongsTo(Provincia::class, 'provincia_preferencia_id');
+    }
+
+    public function localidad()
+    {
+        return $this->belongsTo(Localidad::class, 'localidad_preferencia_id');
     }
 }

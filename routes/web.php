@@ -27,10 +27,10 @@ Route::get('/ofertas/{oferta}', [\App\Http\Controllers\OfertaPublicaController::
 
 // Trabajador
 Route::middleware(['auth', 'es.trabajador'])->prefix('trabajador')->name('trabajador.')->group(function () {
-    Route::get('/dashboard', fn() => view('trabajador.dashboard'))->name('dashboard');
     Route::get('/perfil', [\App\Http\Controllers\Trabajador\PerfilController::class, 'edit'])->name('perfil.edit');
     Route::put('/perfil', [\App\Http\Controllers\Trabajador\PerfilController::class, 'update'])->name('perfil.update');
     Route::get('/postulaciones', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'index'])->name('postulaciones.index');
+    Route::post('/postulaciones/{postulacion}/cancelar', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'cancelar'])->name('postulaciones.cancelar');
     //ofertas 
     Route::get('/ofertas/{oferta}/postular', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'crear'])->name('postulaciones.crear');
     Route::post('/ofertas/{oferta}/postular', [\App\Http\Controllers\Trabajador\PostulacionController::class, 'store'])->name('postulaciones.store');
@@ -38,6 +38,11 @@ Route::middleware(['auth', 'es.trabajador'])->prefix('trabajador')->name('trabaj
     Route::get('/notificaciones', [\App\Http\Controllers\Trabajador\NotificacionController::class, 'index'])->name('notificaciones.index');
     Route::post('/notificaciones/{id}/leer', [\App\Http\Controllers\Trabajador\NotificacionController::class, 'marcarLeida'])->name('notificaciones.leer');
     Route::post('/notificaciones/leer-todas', [\App\Http\Controllers\Trabajador\NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leerTodas');
+    // Configuracion
+    Route::get('/configuracion', [\App\Http\Controllers\Trabajador\ConfiguracionController::class, 'edit'])->name('configuracion.edit');
+    Route::post('/configuracion/visibilidad', [\App\Http\Controllers\Trabajador\ConfiguracionController::class, 'toggleVisibilidad'])->name('configuracion.visibilidad');
+    Route::post('/configuracion/password', [\App\Http\Controllers\Trabajador\ConfiguracionController::class, 'cambiarPassword'])->name('configuracion.password');
+    Route::post('/configuracion/eliminar', [\App\Http\Controllers\Trabajador\ConfiguracionController::class, 'eliminarCuenta'])->name('configuracion.eliminar');
 
 });
 

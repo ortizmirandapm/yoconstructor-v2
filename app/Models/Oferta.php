@@ -48,6 +48,11 @@ class Oferta extends Model
         return $this->belongsTo(Provincia::class);
     }
 
+    public function localidad()
+    {
+        return $this->belongsTo(Localidad::class);
+    }
+
     public function postulaciones()
     {
         return $this->hasMany(Postulacion::class);

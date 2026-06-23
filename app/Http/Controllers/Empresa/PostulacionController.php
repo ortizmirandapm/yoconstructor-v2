@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empresa;
 use App\Http\Controllers\Controller;
 use App\Models\Postulacion;
 use App\Models\Oferta;
+use App\Notifications\PostulacionActualizada;
 use Illuminate\Http\Request;
 
 class PostulacionController extends Controller
@@ -32,6 +33,13 @@ class PostulacionController extends Controller
         ]);
 
         $postulacion->update(['estado' => $request->estado]);
+
+        if (in_array($request->estado, ['Aceptada', 'Rechazada', 'Entrevista', 'Revisada'])) {
+            $user = $postulacion->trabajador->user;
+            if ($user) {
+                $user->notify(new PostulacionActualizada($postulacion, $request->estado));
+            }
+        }
 
         return back()->with('success', 'Estado actualizado.');
     }
