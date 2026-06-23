@@ -1,11 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Database\Factories\EmpresaFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Empresa extends Model
+final class Empresa extends Model
 {
+    /** @use HasFactory<EmpresaFactory> */
+    use HasFactory;
+
     protected $table = 'empresas';
 
     protected $fillable = [
@@ -23,18 +32,23 @@ class Empresa extends Model
         'estado',
     ];
 
-    public function ofertas()
+    public function ofertas(): HasMany
     {
         return $this->hasMany(Oferta::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function rubro()
+    public function rubro(): BelongsTo
     {
         return $this->belongsTo(Rubro::class);
+    }
+
+    public function provincia(): BelongsTo
+    {
+        return $this->belongsTo(Provincia::class);
     }
 }

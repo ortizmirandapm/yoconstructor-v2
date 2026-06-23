@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Illuminate\Notifications\Notification;
 
-class AlertaSistema extends Notification
+final class AlertaSistema extends Notification
 {
     public function __construct(
         public string $titulo,
@@ -20,9 +22,9 @@ class AlertaSistema extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'titulo'  => $this->titulo,
+            'titulo' => $this->titulo,
             'mensaje' => $this->mensaje,
-            'url'     => $this->url,
+            'url' => $this->url,
         ];
     }
 }

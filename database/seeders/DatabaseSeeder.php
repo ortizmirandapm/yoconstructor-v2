@@ -26,13 +26,7 @@ class DatabaseSeeder extends Seeder
             ProvinciaSeeder::class,
             RubroSeeder::class,
             EspecialidadSeeder::class,
-        ]);
-
-        $this->call([
-            ProvinciaSeeder::class,
-            RubroSeeder::class,
-            EspecialidadSeeder::class,
-            LocalidadNorteSeeder::class, // agregás esta línea
+            LocalidadNorteSeeder::class,
         ]);
     }
 }

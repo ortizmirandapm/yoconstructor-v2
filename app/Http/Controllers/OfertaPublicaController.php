@@ -1,50 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\Oferta;
+use App\Enums\TipoContrato;
+use App\Http\Controllers\Controller;
 use App\Models\Especialidad;
+use App\Models\Oferta;
 use App\Models\Provincia;
 use App\Models\Rubro;
+use App\Services\OfertaService;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
-class OfertaPublicaController extends Controller
+final class OfertaPublicaController extends Controller
 {
-    public function index()
+    public function __construct(
+        private readonly OfertaService $ofertaService,
+    ) {}
+
+    public function index(Request $request): View
     {
-        $query = Oferta::with(['empresa', 'provincia', 'especialidades'])
-            ->where('estado', 'Activa')
-            ->withCount('postulaciones as total_postulantes');
+        $filters = $request->only(['rubro', 'especialidad', 'provincia', 'modalidad', 'contrato', 'buscar']);
 
-        if (request('rubro')) {
-            $query->where('rubro_id', request('rubro'));
-        }
-
-        if (request('especialidad')) {
-            $query->whereHas('especialidades', fn($q) =>
-                $q->where('especialidades.id', request('especialidad'))
-            );
-        }
-
-        if (request('provincia')) {
-            $query->where('provincia_id', request('provincia'));
-        }
-
-        if (request('modalidad')) {
-            $query->where('modalidad', request('modalidad'));
-        }
-
-        if (request('contrato')) {
-            $query->where('tipo_contrato', request('contrato'));
-        }
-
-        if (request('buscar')) {
-            $buscar = request('buscar');
-            $query->where(function ($q) use ($buscar) {
-                $q->where('titulo', 'like', "%$buscar%")
-                  ->orWhere('descripcion', 'like', "%$buscar%")
-                  ->orWhereHas('empresa', fn($e) => $e->where('nombre_empresa', 'like', "%$buscar%"));
-            });
-        }
+        $ofertas = $this->ofertaService->obtenerOfertasPublicas($filters);
 
         $trabajadorId = null;
         $prefProvincia = null;
@@ -56,15 +36,13 @@ class OfertaPublicaController extends Controller
             $prefProvincia = $trabajador->provincia_preferencia_id;
             $prefLocalidad = $trabajador->localidad_preferencia_id;
 
-            $query->withCount(['postulaciones as ya_postulado' => fn($q) => $q->where('trabajador_id', $trabajadorId)]);
+            $ofertas->loadCount(['postulaciones as ya_postulado' => fn($q) => $q->where('trabajador_id', $trabajadorId)]);
         }
-
-        $ofertas = $query->latest()->paginate(10)->withQueryString();
 
         $especialidades = Especialidad::where('estado', true)->orderBy('nombre')->get();
         $provincias = Provincia::orderBy('nombre')->get();
         $rubros = Rubro::where('estado', true)->orderBy('nombre')->get();
-        $tiposContrato = ['Tiempo completo', 'Medio tiempo', 'Por proyecto', 'Pasantía'];
+        $tiposContrato = TipoContrato::values();
 
         return view('ofertas.index', compact(
             'ofertas',
@@ -78,9 +56,9 @@ class OfertaPublicaController extends Controller
         ));
     }
 
-    public function show(Oferta $oferta)
+    public function show(Oferta $oferta): View
     {
-        if ($oferta->estado !== 'Activa') {
+        if (!$oferta->estado->esActiva()) {
             abort(404);
         }
 

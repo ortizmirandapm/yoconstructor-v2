@@ -1,140 +1,98 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
-use App\Models\Oferta;
+use App\Http\Requests\OfertaStoreRequest;
+use App\Http\Requests\OfertaUpdateRequest;
 use App\Models\Especialidad;
-use App\Models\Rubro;
+use App\Models\Oferta;
 use App\Models\Provincia;
-use Illuminate\Http\Request;
+use App\Models\Rubro;
+use App\Services\OfertaService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class OfertaController extends Controller
+final class OfertaController extends Controller
 {
+    public function __construct(
+        private readonly OfertaService $ofertaService,
+    ) {}
+
     private function getEmpresa()
     {
         return auth()->user()->empresa;
     }
 
-    public function index()
+    public function index(): View
     {
         $ofertas = $this->getEmpresa()->ofertas()->latest()->paginate(10);
         return view('empresa.ofertas.index', compact('ofertas'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
         $especialidades = Especialidad::where('estado', true)->get();
-        $rubros         = Rubro::where('estado', true)->get();
-        $provincias     = Provincia::all();
+        $rubros = Rubro::where('estado', true)->get();
+        $provincias = Provincia::all();
+
         return view('empresa.ofertas.create', compact('especialidades', 'rubros', 'provincias'));
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(OfertaStoreRequest $request): RedirectResponse
     {
-        $request->validate([
-            'titulo'          => 'required|string|max:200',
-            'descripcion'     => 'required|string',
-            'especialidades'  => 'required|array|min:1',
-            'tipo_contrato'   => 'required',
-            'modalidad'       => 'required',
-        ]);
+        $data = $request->except('especialidades', 'especialidad_principal');
 
-        $oferta = $this->getEmpresa()->ofertas()->create($request->except('especialidades', 'especialidad_principal'));
-
-        // Adjuntar especialidades a la pivot
-        $especialidadesSync = [];
-        foreach ($request->especialidades as $id) {
-            $especialidadesSync[$id] = [
-                'es_principal' => $request->especialidad_principal == $id ? 1 : 0
-            ];
-        }
-        $oferta->especialidades()->sync($especialidadesSync);
-
-        // Notificar después del sync
-        if ($oferta->estado === 'Activa') {
-            $especialidadIds = $oferta->especialidades()->pluck('especialidades.id');
-
-            \App\Models\Trabajador::whereHas('especialidades', function ($query) use ($especialidadIds) {
-                $query->whereIn('especialidades.id', $especialidadIds);
-            })->with('user')->get()->each(function ($trabajador) use ($oferta) {
-                $trabajador->user->notify(new \App\Notifications\NuevaOfertaMatch($oferta));
-            });
-        }
+        $this->ofertaService->crear(
+            $data,
+            $this->getEmpresa(),
+            $request->input('especialidades', []),
+            $request->input('especialidad_principal'),
+        );
 
         return redirect()->route('empresa.ofertas.index')->with('success', 'Oferta publicada.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): void
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Oferta $oferta)
+    public function edit(Oferta $oferta): View
     {
-        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
-            abort(403);
-        }
-      
+        $this->authorize('update', $oferta);
+
         $especialidades = Especialidad::where('estado', true)->get();
-        $rubros         = Rubro::where('estado', true)->get();
-        $provincias     = Provincia::all();
+        $rubros = Rubro::where('estado', true)->get();
+        $provincias = Provincia::all();
+
         return view('empresa.ofertas.edit', compact('oferta', 'especialidades', 'rubros', 'provincias'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Oferta $oferta)
+    public function update(OfertaUpdateRequest $request, Oferta $oferta): RedirectResponse
     {
-        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
-            abort(403);
-        }
-       
-        $request->validate([
-            'titulo'         => 'required|string|max:200',
-            'descripcion'    => 'required|string',
-            'especialidades' => 'required|array|min:1',
-        ]);
+        $this->authorize('update', $oferta);
 
-        $oferta->update($request->except('especialidades', 'especialidad_principal'));
+        $data = $request->except('especialidades', 'especialidad_principal');
 
-        $especialidadesSync = [];
-        foreach ($request->especialidades as $id) {
-            $especialidadesSync[$id] = [
-                'es_principal' => $request->especialidad_principal == $id ? 1 : 0
-            ];
-        }
-        $oferta->especialidades()->sync($especialidadesSync);
+        $this->ofertaService->actualizar(
+            $oferta,
+            $data,
+            $request->input('especialidades', []),
+            $request->input('especialidad_principal'),
+        );
 
         return redirect()->route('empresa.ofertas.index')->with('success', 'Oferta actualizada.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Oferta $oferta)
+    public function destroy(Oferta $oferta): RedirectResponse
     {
-        if (auth()->user()->empresa?->id !== $oferta->empresa_id) {
-            abort(403);
-        }
-        
+        $this->authorize('delete', $oferta);
+
         $oferta->delete();
+
         return redirect()->route('empresa.ofertas.index')->with('success', 'Oferta eliminada.');
     }
 }

@@ -1,11 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\PostulacionEstado;
+use Database\Factories\PostulacionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Postulacion extends Model
+final class Postulacion extends Model
 {
+    /** @use HasFactory<PostulacionFactory> */
+    use HasFactory;
+
     protected $table = 'postulaciones';
 
     protected $fillable = [
@@ -15,12 +24,19 @@ class Postulacion extends Model
         'estado',
     ];
 
-    public function oferta()
+    protected function casts(): array
+    {
+        return [
+            'estado' => PostulacionEstado::class,
+        ];
+    }
+
+    public function oferta(): BelongsTo
     {
         return $this->belongsTo(Oferta::class);
     }
 
-    public function trabajador()
+    public function trabajador(): BelongsTo
     {
         return $this->belongsTo(Trabajador::class);
     }

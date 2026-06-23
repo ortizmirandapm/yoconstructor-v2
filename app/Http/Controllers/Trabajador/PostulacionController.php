@@ -1,95 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Trabajador;
 
+use App\Enums\OfertaEstado;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PostulacionStoreRequest;
 use App\Models\Oferta;
 use App\Models\Postulacion;
+use App\Services\PostulacionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
-class PostulacionController extends Controller
+final class PostulacionController extends Controller
 {
+    public function __construct(
+        private readonly PostulacionService $postulacionService,
+    ) {}
+
     private function getTrabajador()
     {
         return auth()->user()->trabajador;
     }
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $trabajador    = $this->getTrabajador();
-        $filtroEstado  = $request->query('estado');
-        $estadosValidos = ['Pendiente', 'Revisada', 'Entrevista', 'Aceptada', 'Rechazada'];
+        $trabajador = $this->getTrabajador();
+        $filtroEstado = $request->query('estado');
 
-        $query = Postulacion::with(['oferta.empresa', 'oferta.provincia', 'oferta.localidad'])
-            ->where('trabajador_id', $trabajador->id);
+        [$postulaciones, $filtroEstado, $estadosValidos, $counts] =
+            $this->postulacionService->obtenerPostulacionesTrabajador($trabajador, $filtroEstado);
 
-        if ($filtroEstado && in_array($filtroEstado, $estadosValidos)) {
-            $query->where('estado', $filtroEstado);
-        }
-
-        $postulaciones = $query->latest()->paginate(10);
-
-        $counts = Postulacion::selectRaw('estado, COUNT(*) as total')
-            ->where('trabajador_id', $trabajador->id)
-            ->groupBy('estado')
-            ->pluck('total', 'estado')
-            ->toArray();
-
-        return view('trabajador.postulaciones.index', compact('postulaciones', 'filtroEstado', 'estadosValidos', 'counts'));
+        return view('trabajador.postulaciones.index', compact(
+            'postulaciones', 'filtroEstado', 'estadosValidos', 'counts'
+        ));
     }
 
-
-    public function crear(Oferta $oferta)
+    public function crear(Oferta $oferta): View|RedirectResponse
     {
-        if ($oferta->estado !== 'Activa') {
+        if (!$oferta->estado->esActiva()) {
             abort(404);
         }
 
-        $yaPostulado = Postulacion::where('oferta_id', $oferta->id)
-            ->where('trabajador_id', $this->getTrabajador()->id)
-            ->exists();
-
-        if ($yaPostulado) {
+        if ($this->postulacionService->yaPostulado($oferta, $this->getTrabajador())) {
             return redirect()->route('ofertas.show', $oferta)
                 ->with('error', 'Ya te postulaste a esta oferta.');
         }
-        
+
         $oferta->load('empresa');
         return view('trabajador.postulaciones.crear', compact('oferta'));
     }
 
-    
-    public function store(Request $request, Oferta $oferta)
+    public function store(PostulacionStoreRequest $request, Oferta $oferta): RedirectResponse
     {
-        $request->validate([
-            'mensaje' => 'nullable|string|max:1000',
-        ]);
-
-        Postulacion::create([
-            'oferta_id'     => $oferta->id,
-            'trabajador_id' => $this->getTrabajador()->id,
-            'mensaje'       => $request->mensaje,
-            'estado'        => 'Pendiente',
-        ]);
+        $this->postulacionService->crear(
+            $oferta,
+            $this->getTrabajador(),
+            $request->validated('mensaje'),
+        );
 
         return redirect()->route('trabajador.postulaciones.index')
             ->with('success', 'Te postulaste correctamente.');
     }
 
-    public function cancelar(Postulacion $postulacion)
+    public function cancelar(Postulacion $postulacion): RedirectResponse
     {
-        $trabajador = $this->getTrabajador();
+        $cancelado = $this->postulacionService->cancelar($postulacion, $this->getTrabajador());
 
-        if ($postulacion->trabajador_id !== $trabajador->id) {
-            abort(403);
-        }
-
-        if ($postulacion->estado !== 'Pendiente') {
+        if (!$cancelado) {
             return redirect()->route('trabajador.postulaciones.index')
-                ->with('error', 'Solo podés cancelar postulaciones en estado Pendiente.');
+                ->with('error', 'No se pudo cancelar la postulación.');
         }
-
-        $postulacion->delete();
 
         return redirect()->route('trabajador.postulaciones.index')
             ->with('success', 'Postulación cancelada correctamente.');

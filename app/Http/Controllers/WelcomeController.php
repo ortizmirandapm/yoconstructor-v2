@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
 use App\Models\Especialidad;
 use App\Models\Oferta;
 use App\Models\Rubro;
+use Illuminate\View\View;
 
-class WelcomeController extends Controller
+final class WelcomeController extends Controller
 {
-    public function __invoke()
+    public function __invoke(): View
     {
-        $statRubros   = Rubro::count();
-        $statEsps     = Especialidad::count();
-        $statOfertas  = Oferta::where('estado', 'Activa')->count();
+        $statRubros = Rubro::count();
+        $statEsps = Especialidad::count();
+        $statOfertas = Oferta::where('estado', 'Activa')->count();
         $statEmpresas = Empresa::where('estado', 'activo')->count();
 
         $rubros = Rubro::where('estado', true)
@@ -33,7 +36,7 @@ class WelcomeController extends Controller
                     ->toArray();
 
                 $rubro->especialidades_list = $especialidades;
-                $rubro->ofertas_activas     = $rubro->ofertas->count();
+                $rubro->ofertas_activas = $rubro->ofertas->count();
                 return $rubro;
             });
 

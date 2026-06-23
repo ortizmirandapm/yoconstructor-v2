@@ -1,11 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Database\Factories\EspecialidadFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Especialidad extends Model
+final class Especialidad extends Model
 {
+    /** @use HasFactory<EspecialidadFactory> */
+    use HasFactory;
+
     protected $table = 'especialidades';
 
     protected $fillable = [
@@ -14,13 +22,21 @@ class Especialidad extends Model
         'estado',
     ];
 
-    public function trabajadores()
+    protected function casts(): array
     {
-        return $this->belongsToMany(Trabajador::class, 'trabajador_especialidad')
-            ->withPivot('nivel_experiencia', 'es_principal');
+        return [
+            'estado' => 'boolean',
+        ];
     }
 
-    public function ofertas()
+    public function trabajadores(): BelongsToMany
+    {
+        return $this->belongsToMany(Trabajador::class, 'trabajador_especialidad')
+            ->withPivot('nivel_experiencia', 'es_principal')
+            ->withTimestamps();
+    }
+
+    public function ofertas(): BelongsToMany
     {
         return $this->belongsToMany(Oferta::class, 'oferta_especialidad')
             ->withPivot('es_principal');

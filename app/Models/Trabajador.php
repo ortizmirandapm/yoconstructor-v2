@@ -1,11 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Database\Factories\TrabajadorFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Trabajador extends Model
+final class Trabajador extends Model
 {
+    /** @use HasFactory<TrabajadorFactory> */
+    use HasFactory;
+
     protected $table = 'trabajadores';
 
     protected $fillable = [
@@ -25,28 +35,29 @@ class Trabajador extends Model
         'nombre_titulo',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function especialidades()
+    public function especialidades(): BelongsToMany
     {
         return $this->belongsToMany(Especialidad::class, 'trabajador_especialidad')
-                    ->withPivot('nivel_experiencia', 'es_principal');
+            ->withPivot('nivel_experiencia', 'es_principal')
+            ->withTimestamps();
     }
 
-    public function postulaciones()
+    public function postulaciones(): HasMany
     {
         return $this->hasMany(Postulacion::class);
     }
 
-    public function provincia()
+    public function provincia(): BelongsTo
     {
         return $this->belongsTo(Provincia::class, 'provincia_preferencia_id');
     }
 
-    public function localidad()
+    public function localidad(): BelongsTo
     {
         return $this->belongsTo(Localidad::class, 'localidad_preferencia_id');
     }

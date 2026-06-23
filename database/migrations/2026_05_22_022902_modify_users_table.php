@@ -11,16 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('tipo', ['admin', 'trabajador', 'empresa', 'reclutador'])->default('trabajador')->after('email');
-            $table->boolean('estado')->default(true)->after('tipo');
-            $table->boolean('visible_busqueda')->default(true)->after('estado');
-        });
+        // Columns already added in create_users_table migration.
+        // Kept as a no-op to avoid breaking existing migration chains.
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         //

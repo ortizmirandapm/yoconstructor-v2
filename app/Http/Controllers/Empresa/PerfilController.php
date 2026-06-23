@@ -1,40 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Empresa;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EmpresaPerfilUpdateRequest;
 use App\Models\Provincia;
 use App\Models\Rubro;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class PerfilController extends Controller
+final class PerfilController extends Controller
 {
-    public function edit()
+    public function edit(): View
     {
-        $empresa   = auth()->user()->empresa;
+        $empresa = auth()->user()->empresa;
         $provincias = Provincia::all();
-        $rubros     = Rubro::where('estado', true)->get();
+        $rubros = Rubro::where('estado', true)->get();
 
         return view('empresa.perfil', compact('empresa', 'provincias', 'rubros'));
     }
 
-    public function update(Request $request)
+    public function update(EmpresaPerfilUpdateRequest $request): RedirectResponse
     {
         $empresa = auth()->user()->empresa;
-
-        $request->validate([
-            'nombre_empresa'  => 'required|string|max:200',
-            'razon_social'    => 'nullable|string|max:100',
-            'cuit'            => 'nullable|string|max:20|unique:empresas,cuit,' . $empresa->id,
-            'descripcion'     => 'nullable|string|max:2000',
-            'telefono'        => 'nullable|string|max:20',
-            'email_contacto'  => 'nullable|email|max:100',
-            'domicilio'       => 'nullable|string|max:100',
-            'provincia_id'    => 'nullable|exists:provincias,id',
-            'rubro_id'        => 'nullable|exists:rubros,id',
-        ]);
-
-        $empresa->update($request->all());
+        $empresa->update($request->validated());
 
         return redirect()->route('empresa.perfil.edit')->with('success', 'Perfil actualizado.');
     }

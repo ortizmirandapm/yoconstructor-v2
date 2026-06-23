@@ -1,0 +1,18 @@
+parameters:
+    level: 9
+    paths:
+        - app
+        - tests
+    excludePaths:
+        - vendor
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    reportUnmatchedIgnoredErrors: true
+    tmpDir: var/cache/phpstan
+
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
+        - '#Method App\\Http\\Controllers\\.*::.* has parameter \$.* with no value type specified in iterable type array#'
+        - '#Property App\\Models\\User::\$fillable has no explicit mixed value#'
+        - '#PHPDoc tag @use with subtype HasFactory.*#'
+        - '#Result of static method App\\Models\\User::factory\(\) .*#'

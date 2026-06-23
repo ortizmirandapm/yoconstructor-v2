@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Empresa;
-use App\Models\Trabajador;
 use App\Models\Oferta;
+use App\Models\Trabajador;
+use App\Models\User;
+use Illuminate\View\View;
 
-class AdminController extends Controller
+final class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(): View
     {
         $stats = [
-            'total_usuarios'   => User::count(),
-            'total_empresas'   => Empresa::count(),
+            'total_usuarios' => User::count(),
+            'total_empresas' => Empresa::count(),
             'total_trabajadores' => Trabajador::count(),
-            'ofertas_activas'  => Oferta::where('estado', 'Activa')->count(),
-            'ofertas_total'    => Oferta::count(),
-            'usuarios_nuevos'  => User::whereDate('created_at', today())->count(),
+            'ofertas_activas' => Oferta::where('estado', 'Activa')->count(),
+            'ofertas_total' => Oferta::count(),
+            'usuarios_nuevos' => User::whereDate('created_at', today())->count(),
         ];
 
         $ofertas_recientes = Oferta::with('empresa')

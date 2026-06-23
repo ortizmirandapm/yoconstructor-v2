@@ -1,12 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\OfertaEstado;
+use App\Enums\TipoContrato;
+use App\Enums\Modalidad;
+use Database\Factories\OfertaFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Postulacion;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Oferta extends Model
+final class Oferta extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $table = 'ofertas';
 
     protected $fillable = [
@@ -26,34 +38,40 @@ class Oferta extends Model
         'estado',
     ];
 
-    protected $casts = [
-        'fecha_vencimiento' => 'date',
-        'salario_min'       => 'decimal:2',
-        'salario_max'       => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'fecha_vencimiento' => 'date',
+            'salario_min' => 'decimal:2',
+            'salario_max' => 'decimal:2',
+            'estado' => OfertaEstado::class,
+            'tipo_contrato' => TipoContrato::class,
+            'modalidad' => Modalidad::class,
+        ];
+    }
 
-    public function empresa()
+    public function empresa(): BelongsTo
     {
         return $this->belongsTo(Empresa::class);
     }
 
-    public function especialidades()
+    public function especialidades(): BelongsToMany
     {
         return $this->belongsToMany(Especialidad::class, 'oferta_especialidad')
             ->withPivot('es_principal');
     }
 
-    public function provincia()
+    public function provincia(): BelongsTo
     {
         return $this->belongsTo(Provincia::class);
     }
 
-    public function localidad()
+    public function localidad(): BelongsTo
     {
         return $this->belongsTo(Localidad::class);
     }
 
-    public function postulaciones()
+    public function postulaciones(): HasMany
     {
         return $this->hasMany(Postulacion::class);
     }

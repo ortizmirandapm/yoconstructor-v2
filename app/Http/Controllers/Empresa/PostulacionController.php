@@ -1,21 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Empresa;
 
+use App\Enums\PostulacionEstado;
 use App\Http\Controllers\Controller;
-use App\Models\Postulacion;
+use App\Http\Requests\CambiarEstadoPostulacionRequest;
 use App\Models\Oferta;
-use App\Notifications\PostulacionActualizada;
-use Illuminate\Http\Request;
+use App\Models\Postulacion;
+use App\Services\PostulacionService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class PostulacionController extends Controller
+final class PostulacionController extends Controller
 {
+    public function __construct(
+        private readonly PostulacionService $postulacionService,
+    ) {}
+
     private function getEmpresa()
     {
         return auth()->user()->empresa;
     }
 
-    public function index()
+    public function index(): View
     {
         $ofertas = Oferta::with(['postulaciones.trabajador.user'])
             ->where('empresa_id', $this->getEmpresa()->id)
@@ -26,20 +35,10 @@ class PostulacionController extends Controller
         return view('empresa.postulaciones.index', compact('ofertas'));
     }
 
-    public function cambiarEstado(Request $request, Postulacion $postulacion)
+    public function cambiarEstado(CambiarEstadoPostulacionRequest $request, Postulacion $postulacion): RedirectResponse
     {
-        $request->validate([
-            'estado' => 'required|in:Pendiente,Revisada,Entrevista,Aceptada,Rechazada',
-        ]);
-
-        $postulacion->update(['estado' => $request->estado]);
-
-        if (in_array($request->estado, ['Aceptada', 'Rechazada', 'Entrevista', 'Revisada'])) {
-            $user = $postulacion->trabajador->user;
-            if ($user) {
-                $user->notify(new PostulacionActualizada($postulacion, $request->estado));
-            }
-        }
+        $nuevoEstado = PostulacionEstado::from($request->validated('estado'));
+        $this->postulacionService->cambiarEstado($postulacion, $nuevoEstado);
 
         return back()->with('success', 'Estado actualizado.');
     }

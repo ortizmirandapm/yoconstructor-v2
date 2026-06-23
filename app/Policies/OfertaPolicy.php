@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Oferta;
 use App\Models\User;
 
-class OfertaPolicy
+final class OfertaPolicy
 {
     public function update(User $user, Oferta $oferta): bool
     {

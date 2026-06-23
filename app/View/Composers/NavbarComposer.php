@@ -1,30 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Composers;
 
+use App\Enums\UserTipo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class NavbarComposer
+final class NavbarComposer
 {
     public function compose(View $view): void
     {
-        $navbarUser          = null;
+        $navbarUser = null;
         $navbarNombreCompleto = 'Usuario';
-        $navbarTipoNombre    = 'Usuario';
-        $navbarEmail         = '';
-        $navbarFotoPerfil    = asset('img/profile.png');
-        $navbarNotisCount    = 0;
-        $navbarUltimasNotis  = [];
-        $navbarEsTrabajador  = false;
+        $navbarTipoNombre = 'Usuario';
+        $navbarEmail = '';
+        $navbarFotoPerfil = asset('img/profile.png');
+        $navbarNotisCount = 0;
+        $navbarUltimasNotis = [];
+        $navbarEsTrabajador = false;
 
         if (Auth::check()) {
-            $user             = Auth::user();
-            $navbarUser       = $user;
-            $navbarEmail      = $user->email;
-            $navbarEsTrabajador = $user->tipo === 'trabajador';
+            $user = Auth::user();
+            $navbarUser = $user;
+            $navbarEmail = $user->email;
+            $navbarEsTrabajador = $user->tipo === UserTipo::Trabajador->value;
 
-            if ($user->tipo === 'trabajador' && $user->trabajador) {
+            if ($user->tipo === UserTipo::Trabajador->value && $user->trabajador) {
                 $trabajador = $user->trabajador;
                 $navbarNombreCompleto = strtoupper(trim(
                     ($trabajador->nombre ?? '') . ' ' . ($trabajador->apellido ?? '')
@@ -38,27 +41,30 @@ class NavbarComposer
                         : asset('img/profile.png');
                 }
 
-                $navbarNotisCount   = $user->unreadNotifications->count();
-                $latestNotis        = $user->notifications()
+                $navbarNotisCount = $user->unreadNotifications->count();
+                $latestNotis = $user->notifications()
                     ->orderBy('created_at', 'desc')
                     ->take(5)
                     ->get();
 
                 $navbarUltimasNotis = $latestNotis->map(fn($n) => [
                     'id_notificacion' => $n->id,
-                    'tipo'            => $this->mapNotificationType($n->type),
-                    'titulo'          => $n->data['titulo'] ?? 'Notificación',
-                    'mensaje'         => $this->buildNotiMessage($n),
-                    'leida'           => $n->read_at !== null,
-                    'url_accion'      => $n->data['url'] ?? route('trabajador.notificaciones.index'),
-                    'fecha_creacion'  => $n->created_at,
+                    'tipo' => $this->mapNotificationType($n->type),
+                    'titulo' => $n->data['titulo'] ?? 'Notificación',
+                    'mensaje' => $this->buildNotiMessage($n),
+                    'leida' => $n->read_at !== null,
+                    'url_accion' => $n->data['url'] ?? route('trabajador.notificaciones.index'),
+                    'fecha_creacion' => $n->created_at,
                 ])->toArray();
-            } elseif ($user->tipo === 'empresa') {
+            } elseif ($user->tipo === UserTipo::Empresa->value) {
                 $navbarNombreCompleto = $user->empresa?->nombre_empresa ?: $user->name;
                 $navbarTipoNombre = 'Empresa';
+            } elseif ($user->tipo === UserTipo::Admin->value) {
+                $navbarNombreCompleto = $user->name;
+                $navbarTipoNombre = 'Administrador';
             } else {
                 $navbarNombreCompleto = $user->name;
-                $navbarTipoNombre = ucfirst($user->tipo);
+                $navbarTipoNombre = $user->tipo ? ucfirst($user->tipo) : 'Usuario';
             }
         }
 
@@ -78,7 +84,9 @@ class NavbarComposer
     {
         return match (class_basename($type)) {
             'NuevaOfertaMatch' => 'oferta',
-            default            => 'info',
+            'PostulacionActualizada' => 'postulacion',
+            'AlertaSistema' => 'sistema',
+            default => 'info',
         };
     }
 
@@ -88,7 +96,7 @@ class NavbarComposer
 
         return match (class_basename($notification->type)) {
             'NuevaOfertaMatch' => 'Nueva oferta de ' . ($data['empresa'] ?? '') . ' en ' . ($data['provincia'] ?? ''),
-            default            => $data['mensaje'] ?? 'Tienes una nueva notificación.',
+            default => $data['mensaje'] ?? 'Tienes una nueva notificación.',
         };
     }
 }

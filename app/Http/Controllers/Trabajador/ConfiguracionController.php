@@ -1,29 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Trabajador;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CambiarPasswordRequest;
+use App\Http\Requests\ToggleVisibilidadRequest;
+use App\Services\ConfiguracionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
 
-class ConfiguracionController extends Controller
+final class ConfiguracionController extends Controller
 {
-    public function edit()
+    public function __construct(
+        private readonly ConfiguracionService $configuracionService,
+    ) {}
+
+    public function edit(): View
     {
         $user = auth()->user();
         return view('trabajador.configuracion', compact('user'));
     }
 
-    public function toggleVisibilidad(Request $request)
+    public function toggleVisibilidad(ToggleVisibilidadRequest $request): RedirectResponse
     {
-        $request->validate([
-            'visible_busqueda' => 'required|in:0,1',
-        ]);
-
         $nuevoValor = $request->boolean('visible_busqueda');
-        auth()->user()->update(['visible_busqueda' => $nuevoValor]);
+        $this->configuracionService->toggleVisibilidad(auth()->user(), $nuevoValor);
 
         $mensaje = $nuevoValor
             ? '✓ Ahora aparecés en la búsqueda de empresas.'
@@ -32,39 +36,28 @@ class ConfiguracionController extends Controller
         return back()->with('success', $mensaje);
     }
 
-    public function eliminarCuenta(Request $request)
+    public function eliminarCuenta(Request $request): RedirectResponse
     {
         $request->validate([
-            'confirmar_texto' => 'required|string',
+            'confirmar_texto' => ['required', 'string', 'in:ELIMINAR'],
+        ], [
+            'confirmar_texto.in' => 'Escribí ELIMINAR exactamente para confirmar.',
         ]);
 
-        if ($request->input('confirmar_texto') !== 'ELIMINAR') {
-            return back()->with('error', 'Escribí ELIMINAR exactamente para confirmar.');
-        }
+        $this->configuracionService->eliminarCuenta(auth()->user());
 
-        auth()->user()->update(['estado' => false]);
-
-        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/?cuenta=eliminada');
     }
 
-    public function cambiarPassword(Request $request)
+    public function cambiarPassword(CambiarPasswordRequest $request): RedirectResponse
     {
-        $request->validate([
-            'current_password' => ['required', function ($attribute, $value, $fail) {
-                if (!Hash::check($value, auth()->user()->password)) {
-                    $fail('La contraseña actual no es correcta.');
-                }
-            }],
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ]);
-
-        auth()->user()->update([
-            'password' => Hash::make($request->password),
-        ]);
+        $this->configuracionService->cambiarPassword(
+            auth()->user(),
+            $request->validated('password'),
+        );
 
         return back()->with('success', '✓ Contraseña actualizada correctamente.');
     }
