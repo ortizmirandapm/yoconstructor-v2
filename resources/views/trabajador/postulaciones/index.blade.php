@@ -94,7 +94,7 @@
         <div class="space-y-4">
             @foreach($postulaciones as $p)
                 @php
-                    $cfg = $estadoConfig[$p->estado] ?? $estadoConfig['Pendiente'];
+                    $cfg = $estadoConfig[$p->estado->value] ?? $estadoConfig['Pendiente'];
                     $ofertaVencida = $p->oferta->fecha_vencimiento && $p->oferta->fecha_vencimiento->isPast();
                     $ofertaInactiva = $p->oferta->estado !== 'Activa';
 
@@ -119,7 +119,7 @@
                         'estado_oferta' => $p->oferta->estado,
                         'logo'          => $logoUrl,
                         'id_oferta'     => $p->oferta->id,
-                        'estado_post'   => $p->estado,
+                        'estado_post'   => $p->estado->value,
                         'fecha_post'    => $p->created_at->diffForHumans(),
                     ];
                 @endphp
@@ -211,18 +211,18 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             Ver oferta
                                         </button>
-                                        @if($p->estado === 'Pendiente')
+                                        @if($p->estado->value === 'Pendiente')
                                             <button onclick="confirmarCancelar({{ $p->id }}, '{{ addslashes($p->oferta->titulo) }}')"
                                                 class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 border border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition font-medium">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                 Cancelar
                                             </button>
-                                        @elseif($p->estado === 'Aceptada')
+                                        @elseif($p->estado->value === 'Aceptada')
                                             <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-green-100 text-green-700 rounded-lg font-semibold">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                                 ¡Felicitaciones!
                                             </span>
-                                        @elseif($p->estado === 'Entrevista')
+                                        @elseif($p->estado->value === 'Entrevista')
                                             <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg font-semibold">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                                 Revisá tu email

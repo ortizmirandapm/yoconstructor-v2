@@ -10,6 +10,7 @@ enum OfertaEstado: string
     case Pausada = 'Pausada';
     case Cerrada = 'Cerrada';
     case Borrador = 'Borrador';
+    case Inactiva = 'Inactiva';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum OfertaEstado: string
             self::Pausada => 'Pausada',
             self::Cerrada => 'Cerrada',
             self::Borrador => 'Borrador',
+            self::Inactiva => 'Inactiva',
         };
     }
 

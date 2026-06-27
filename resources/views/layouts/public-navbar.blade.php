@@ -195,7 +195,7 @@
                                     @endif
                                 </a></li>
                                 @endif
-                                <li><a href="#" class="flex items-center w-full px-3 py-2.5 hover:bg-gray-100 rounded-lg transition-colors duration-300">
+                                <li><a href="{{ $navbarEsTrabajador ? route('trabajador.configuracion.edit') : route('empresa.perfil.edit') }}" class="flex items-center w-full px-3 py-2.5 hover:bg-gray-100 rounded-lg transition-colors duration-300">
                                     <svg class="w-5 h-5 me-3 flex-shrink-0" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M20 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6h-2m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4"/></svg>
                                     Configuraciones
                                 </a></li>
@@ -275,7 +275,7 @@
                                 @endif
                             </a></li>
                             @endif
-                            <li><a href="#" class="flex items-center px-4 py-2.5 hover:bg-gray-100 transition-colors duration-300">
+                            <li><a href="{{ $navbarEsTrabajador ? route('trabajador.configuracion.edit') : route('empresa.perfil.edit') }}" class="flex items-center px-4 py-2.5 hover:bg-gray-100 transition-colors duration-300">
                                 <svg class="w-5 h-5 mr-3 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M20 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6h-2m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4"/></svg>
                                 Configuraciones
                             </a></li>

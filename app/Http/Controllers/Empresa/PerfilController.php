@@ -9,13 +9,14 @@ use App\Http\Requests\EmpresaPerfilUpdateRequest;
 use App\Models\Provincia;
 use App\Models\Rubro;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class PerfilController extends Controller
 {
     public function edit(): View
     {
-        $empresa = auth()->user()->empresa;
+        $empresa = auth()->user()->empresa()->with('rubro', 'provincia')->first();
         $provincias = Provincia::all();
         $rubros = Rubro::where('estado', true)->get();
 
@@ -25,8 +26,19 @@ final class PerfilController extends Controller
     public function update(EmpresaPerfilUpdateRequest $request): RedirectResponse
     {
         $empresa = auth()->user()->empresa;
-        $empresa->update($request->validated());
+        $data = $request->validated();
 
-        return redirect()->route('empresa.perfil.edit')->with('success', 'Perfil actualizado.');
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $filename = 'logo_' . $empresa->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('uploads/logos', $filename, 'public');
+            $data['logo'] = $filename;
+        }
+
+        $empresa->update($data);
+
+        return redirect()->route('empresa.perfil.edit')
+            ->with('toast', 'Perfil actualizado correctamente.')
+            ->with('toast_tipo', 'success');
     }
 }

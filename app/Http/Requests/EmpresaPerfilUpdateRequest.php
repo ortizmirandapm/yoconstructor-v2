@@ -24,6 +24,7 @@ final class EmpresaPerfilUpdateRequest extends FormRequest
             'domicilio' => ['nullable', 'string', 'max:100'],
             'provincia_id' => ['nullable', 'exists:provincias,id'],
             'rubro_id' => ['nullable', 'exists:rubros,id'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:5120'],
         ];
     }
 }

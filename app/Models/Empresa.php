@@ -30,11 +30,19 @@ final class Empresa extends Model
         'logo',
         'domicilio',
         'estado',
+        'perfil_publico',
     ];
 
     public function ofertas(): HasMany
     {
         return $this->hasMany(Oferta::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'perfil_publico' => 'boolean',
+        ];
     }
 
     public function user(): BelongsTo

@@ -55,6 +55,11 @@ final class Oferta extends Model
         return $this->belongsTo(Empresa::class);
     }
 
+    public function rubro(): BelongsTo
+    {
+        return $this->belongsTo(Rubro::class);
+    }
+
     public function especialidades(): BelongsToMany
     {
         return $this->belongsToMany(Especialidad::class, 'oferta_especialidad')

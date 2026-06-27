@@ -21,6 +21,8 @@ final class Postulacion extends Model
         'oferta_id',
         'trabajador_id',
         'mensaje',
+        'cv_adjunto',
+        'notas_empresa',
         'estado',
     ];
 

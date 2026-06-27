@@ -73,7 +73,10 @@ final class OfertaControllerTest extends TestCase
             ->delete(route('empresa.ofertas.destroy', $oferta));
 
         $response->assertRedirect(route('empresa.ofertas.index'));
-        $this->assertSoftDeleted('ofertas', ['id' => $oferta->id]);
+        $this->assertDatabaseHas('ofertas', [
+            'id' => $oferta->id,
+            'estado' => OfertaEstado::Borrador->value,
+        ]);
     }
 
     public function test_guest_cannot_create_oferta(): void
@@ -84,5 +87,46 @@ final class OfertaControllerTest extends TestCase
         ]);
 
         $response->assertRedirect(route('login'));
+    }
+
+    public function test_empresa_can_view_borradores(): void
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('empresa.borradores.index'));
+
+        $response->assertOk();
+    }
+
+    public function test_empresa_can_restaurar_borrador(): void
+    {
+        $oferta = $this->empresa->ofertas()->create([
+            'titulo' => 'Borrador Test',
+            'descripcion' => 'Desc',
+            'estado' => OfertaEstado::Borrador->value,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->patch(route('empresa.borradores.restaurar', $oferta));
+
+        $response->assertRedirect(route('empresa.borradores.index'));
+        $this->assertDatabaseHas('ofertas', [
+            'id' => $oferta->id,
+            'estado' => OfertaEstado::Activa->value,
+        ]);
+    }
+
+    public function test_empresa_can_permanently_delete_borrador(): void
+    {
+        $oferta = $this->empresa->ofertas()->create([
+            'titulo' => 'Borrador Test',
+            'descripcion' => 'Desc',
+            'estado' => OfertaEstado::Borrador->value,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->delete(route('empresa.borradores.destroy', $oferta));
+
+        $response->assertRedirect(route('empresa.borradores.index'));
+        $this->assertDatabaseMissing('ofertas', ['id' => $oferta->id]);
     }
 }

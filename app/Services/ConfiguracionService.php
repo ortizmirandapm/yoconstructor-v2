@@ -21,6 +21,17 @@ final readonly class ConfiguracionService
         Auth::logout();
     }
 
+    public function eliminarCuentaEmpresa(User $user): void
+    {
+        $empresa = $user->empresa;
+        if ($empresa) {
+            $empresa->ofertas()->update(['estado' => 'Cerrada']);
+            $empresa->update(['estado' => 'inactivo']);
+        }
+        $user->update(['estado' => false]);
+        Auth::logout();
+    }
+
     public function cambiarPassword(User $user, string $newPassword): void
     {
         $user->update([
