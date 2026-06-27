@@ -95,30 +95,32 @@
             @foreach($postulaciones as $p)
                 @php
                     $cfg = $estadoConfig[$p->estado->value] ?? $estadoConfig['Pendiente'];
-                    $ofertaVencida = $p->oferta->fecha_vencimiento && $p->oferta->fecha_vencimiento->isPast();
-                    $ofertaInactiva = $p->oferta->estado !== 'Activa';
+                    $oferta = $p->oferta;
+                    $empresa = $oferta?->empresa;
+                    $ofertaVencida = $oferta?->fecha_vencimiento && $oferta->fecha_vencimiento->isPast();
+                    $ofertaInactiva = $oferta?->estado !== 'Activa';
 
-                    $logoUrl = $p->oferta->empresa->logo
-                        ? asset('uploads/logos/' . $p->oferta->empresa->logo)
+                    $logoUrl = $empresa?->logo
+                        ? asset($empresa->logo)
                         : asset('img/profile.png');
 
                     $ofertaData = [
-                        'titulo'        => $p->oferta->titulo,
-                        'empresa'       => $p->oferta->empresa->nombre_empresa ?? '',
-                        'descripcion'   => $p->oferta->descripcion ?? '',
-                        'requisitos'    => $p->oferta->requisitos ?? '',
-                        'tipo_contrato' => $p->oferta->tipo_contrato ?? '',
-                        'modalidad'     => $p->oferta->modalidad ?? '',
-                        'salario_min'   => $p->oferta->salario_min,
-                        'salario_max'   => $p->oferta->salario_max,
-                        'provincia'     => $p->oferta->provincia?->nombre ?? '',
-                        'localidad'     => $p->oferta->localidad?->nombre ?? '',
-                        'especialidad'  => $p->oferta->especialidades->first()?->nombre ?? '',
-                        'experiencia'   => $p->oferta->experiencia_requerida ?? '',
-                        'vencimiento'   => $p->oferta->fecha_vencimiento?->format('d/m/Y') ?? '',
-                        'estado_oferta' => $p->oferta->estado,
+                        'titulo'        => $oferta?->titulo ?? '',
+                        'empresa'       => $empresa?->nombre_empresa ?? '',
+                        'descripcion'   => $oferta?->descripcion ?? '',
+                        'requisitos'    => $oferta?->requisitos ?? '',
+                        'tipo_contrato' => $oferta?->tipo_contrato ?? '',
+                        'modalidad'     => $oferta?->modalidad ?? '',
+                        'salario_min'   => $oferta?->salario_min,
+                        'salario_max'   => $oferta?->salario_max,
+                        'provincia'     => $oferta?->provincia?->nombre ?? '',
+                        'localidad'     => $oferta?->localidad?->nombre ?? '',
+                        'especialidad'  => $oferta?->especialidades->first()?->nombre ?? '',
+                        'experiencia'   => $oferta?->experiencia_requerida ?? '',
+                        'vencimiento'   => $oferta->fecha_vencimiento?->format('d/m/Y') ?? '',
+                        'estado_oferta' => $oferta->estado,
                         'logo'          => $logoUrl,
-                        'id_oferta'     => $p->oferta->id,
+                        'id_oferta'     => $oferta->id,
                         'estado_post'   => $p->estado->value,
                         'fecha_post'    => $p->created_at->diffForHumans(),
                     ];
@@ -138,9 +140,9 @@
                                 <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
                                     <div>
                                         <h3 class="text-base font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
-                                            {{ $p->oferta->titulo }}
+                                            {{ $oferta->titulo }}
                                         </h3>
-                                        <p class="text-sm text-blue-600 font-semibold mt-0.5">{{ $p->oferta->empresa->nombre_empresa ?? 'Empresa' }}</p>
+                                        <p class="text-sm text-blue-600 font-semibold mt-0.5">{{ $oferta->empresa->nombre_empresa ?? 'Empresa' }}</p>
                                     </div>
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold {{ $cfg['bg'] }} {{ $cfg['text'] }} border {{ $cfg['border'] }} flex-shrink-0">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $cfg['dot'] }}"></span>
@@ -150,35 +152,35 @@
 
                                 {{-- Tags --}}
                                 <div class="flex flex-wrap gap-1.5 my-3">
-                                    @if($p->oferta->localidad?->nombre || $p->oferta->provincia?->nombre)
+                                    @if($oferta->localidad?->nombre || $oferta->provincia?->nombre)
                                         <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
                                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                            {{ $p->oferta->localidad?->nombre ? $p->oferta->localidad->nombre . ', ' . $p->oferta->provincia->nombre : $p->oferta->provincia->nombre }}
+                                            {{ $oferta->localidad?->nombre ? $oferta->localidad->nombre . ', ' . $oferta->provincia->nombre : $oferta->provincia->nombre }}
                                         </span>
                                     @endif
-                                    @if($p->oferta->tipo_contrato)
+                                    @if($oferta->tipo_contrato)
                                         <span class="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-100">
                                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            {{ $p->oferta->tipo_contrato }}
+                                            {{ $oferta->tipo_contrato }}
                                         </span>
                                     @endif
-                                    @if($p->oferta->modalidad)
+                                    @if($oferta->modalidad)
                                         <span class="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">
                                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                                            {{ $p->oferta->modalidad }}
+                                            {{ $oferta->modalidad }}
                                         </span>
                                     @endif
-                                    @php $primeraEsp = $p->oferta->especialidades->first(); @endphp
+                                    @php $primeraEsp = $oferta->especialidades->first(); @endphp
                                     @if($primeraEsp)
                                         <span class="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full border border-orange-200">
                                             <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                             {{ $primeraEsp->nombre }}
                                         </span>
                                     @endif
-                                    @if($p->oferta->salario_min || $p->oferta->salario_max)
+                                    @if($oferta->salario_min || $oferta->salario_max)
                                         @php
-                                            $salMin = $p->oferta->salario_min ? '$' . number_format($p->oferta->salario_min / 1000, 0) . 'k' : '';
-                                            $salMax = $p->oferta->salario_max ? '$' . number_format($p->oferta->salario_max / 1000, 0) . 'k' : '';
+                                            $salMin = $oferta->salario_min ? '$' . number_format($oferta->salario_min / 1000, 0) . 'k' : '';
+                                            $salMax = $oferta->salario_max ? '$' . number_format($oferta->salario_max / 1000, 0) . 'k' : '';
                                             $salTxt = $salMin && $salMax ? $salMin . ' – ' . $salMax . ' ARS' : ($salMin ?: $salMax) . ' ARS';
                                         @endphp
                                         <span class="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2.5 py-1 rounded-full border border-green-200 font-medium">
@@ -212,7 +214,7 @@
                                             Ver oferta
                                         </button>
                                         @if($p->estado->value === 'Pendiente')
-                                            <button onclick="confirmarCancelar({{ $p->id }}, '{{ addslashes($p->oferta->titulo) }}')"
+                                            <button onclick="confirmarCancelar({{ $p->id }}, '{{ addslashes($oferta->titulo) }}')"
                                                 class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 border border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition font-medium">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                 Cancelar

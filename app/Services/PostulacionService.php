@@ -62,7 +62,8 @@ final readonly class PostulacionService
         $estadosLabels = array_map(fn(PostulacionEstado $e) => $e->value, $estadosValidos);
 
         $query = Postulacion::with(['oferta.empresa', 'oferta.provincia', 'oferta.localidad'])
-            ->where('trabajador_id', $trabajador->id);
+            ->where('trabajador_id', $trabajador->id)
+            ->whereHas('oferta');
 
         if ($filtroEstado && in_array($filtroEstado, $estadosLabels, true)) {
             $query->where('estado', $filtroEstado);

@@ -198,7 +198,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     @if ($empresaData?->logo)
-                        <img src="{{ asset('storage/uploads/logos/' . $empresaData->logo) }}" class="w-10 h-10 rounded-full object-cover border border-gray-200" alt="Logo">
+                        <img src="{{ asset($empresaData->logo) }}" class="w-10 h-10 rounded-full object-cover border border-gray-200" alt="Logo">
                     @else
                         <img src="https://ui-avatars.com/api/?name={{ urlencode($empresaData?->nombre_empresa ?: 'E') }}&background=4f46e5&color=fff" class="w-10 h-10 rounded-full" alt="Logo">
                     @endif

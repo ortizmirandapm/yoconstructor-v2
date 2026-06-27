@@ -34,7 +34,7 @@
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
             <div class="flex flex-col sm:flex-row sm:items-center gap-5">
                 @if ($empresa->logo)
-                <img src="{{ asset('storage/uploads/logos/' . $empresa->logo) }}"
+                <img src="{{ asset($empresa->logo) }}"
                      class="w-20 h-20 rounded-2xl object-cover border border-gray-200 flex-shrink-0" alt="Logo">
                 @else
                 <div class="w-20 h-20 rounded-2xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
@@ -127,7 +127,7 @@
                 <div class="flex items-center gap-5 pb-5 border-b border-gray-100">
                     <div class="relative flex-shrink-0">
                         <img id="preview-logo"
-                             src="{{ $empresa->logo ? asset('uploads/logos/' . $empresa->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($empresa->nombre_empresa ?? 'E') . '&background=4f46e5&color=fff' }}"
+                             src="{{ $empresa->logo ? asset($empresa->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($empresa->nombre_empresa ?? 'E') . '&background=4f46e5&color=fff' }}"
                              class="w-20 h-20 rounded-2xl object-cover border-2 border-gray-200" alt="Logo preview">
                         <label for="logo" class="absolute -bottom-1 -right-1 bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-full cursor-pointer shadow transition">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

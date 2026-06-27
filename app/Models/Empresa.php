@@ -38,6 +38,15 @@ final class Empresa extends Model
         return $this->hasMany(Oferta::class);
     }
 
+    public function getLogoAttribute(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return 'storage/uploads/logos/' . $value;
+    }
+
     protected function casts(): array
     {
         return [
