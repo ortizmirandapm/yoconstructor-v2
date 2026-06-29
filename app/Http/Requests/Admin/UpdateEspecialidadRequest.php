@@ -13,7 +13,7 @@ final class UpdateEspecialidadRequest extends FormRequest
         $especialidadId = $this->route('especialidad');
 
         return [
-            'nombre' => ['required', 'string', 'max:100', 'unique:especialidades,nombre,' . $especialidadId],
+            'nombre' => ['required', 'string', 'max:100', 'unique:especialidades,nombre,'.$especialidadId],
             'descripcion' => ['nullable', 'string'],
         ];
     }

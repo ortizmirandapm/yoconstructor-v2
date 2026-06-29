@@ -6,7 +6,6 @@ namespace Tests\Feature\Empresa;
 
 use App\Enums\OfertaEstado;
 use App\Models\Empresa;
-use App\Models\Oferta;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +16,7 @@ final class ConfiguracionControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Empresa $empresa;
 
     protected function setUp(): void

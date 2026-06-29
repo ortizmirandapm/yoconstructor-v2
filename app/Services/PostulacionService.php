@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\OfertaEstado;
 use App\Enums\PostulacionEstado;
 use App\Models\Oferta;
 use App\Models\Postulacion;
@@ -46,6 +45,7 @@ final readonly class PostulacionService
         }
 
         $postulacion->delete();
+
         return true;
     }
 
@@ -59,7 +59,7 @@ final readonly class PostulacionService
     public function obtenerPostulacionesTrabajador(Trabajador $trabajador, ?string $filtroEstado)
     {
         $estadosValidos = PostulacionEstado::cases();
-        $estadosLabels = array_map(fn(PostulacionEstado $e) => $e->value, $estadosValidos);
+        $estadosLabels = array_map(fn (PostulacionEstado $e) => $e->value, $estadosValidos);
 
         $query = Postulacion::with(['oferta.empresa', 'oferta.provincia', 'oferta.localidad'])
             ->where('trabajador_id', $trabajador->id)

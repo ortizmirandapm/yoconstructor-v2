@@ -31,11 +31,11 @@ final class OfertaFactory extends Factory
 
     public function activa(): static
     {
-        return $this->state(fn(array $_) => ['estado' => OfertaEstado::Activa->value]);
+        return $this->state(fn (array $_) => ['estado' => OfertaEstado::Activa->value]);
     }
 
     public function pausada(): static
     {
-        return $this->state(fn(array $_) => ['estado' => OfertaEstado::Pausada->value]);
+        return $this->state(fn (array $_) => ['estado' => OfertaEstado::Pausada->value]);
     }
 }

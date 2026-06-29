@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Trabajador;
 
-use App\Enums\OfertaEstado;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostulacionStoreRequest;
 use App\Models\Oferta;
@@ -40,7 +39,7 @@ final class PostulacionController extends Controller
 
     public function crear(Oferta $oferta): View|RedirectResponse
     {
-        if (!$oferta->estado->esActiva()) {
+        if (! $oferta->estado->esActiva()) {
             abort(404);
         }
 
@@ -50,6 +49,7 @@ final class PostulacionController extends Controller
         }
 
         $oferta->load('empresa');
+
         return view('trabajador.postulaciones.crear', compact('oferta'));
     }
 
@@ -69,7 +69,7 @@ final class PostulacionController extends Controller
     {
         $cancelado = $this->postulacionService->cancelar($postulacion, $this->getTrabajador());
 
-        if (!$cancelado) {
+        if (! $cancelado) {
             return redirect()->route('trabajador.postulaciones.index')
                 ->with('error', 'No se pudo cancelar la postulación.');
         }

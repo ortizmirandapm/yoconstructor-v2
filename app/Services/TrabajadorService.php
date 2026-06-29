@@ -39,7 +39,7 @@ final readonly class TrabajadorService
 
     private function handleImagenUpload(Trabajador $trabajador, Request $request): string
     {
-        if (!empty($trabajador->imagen_perfil)) {
+        if (! empty($trabajador->imagen_perfil)) {
             $this->archivoService->eliminarImagenPerfil($trabajador->imagen_perfil);
         }
 
@@ -51,7 +51,7 @@ final readonly class TrabajadorService
 
     private function handleCurriculumUpload(Trabajador $trabajador, Request $request): string
     {
-        if (!empty($trabajador->curriculum_pdf)) {
+        if (! empty($trabajador->curriculum_pdf)) {
             $this->archivoService->eliminarCurriculum($trabajador->curriculum_pdf);
         }
 
@@ -65,7 +65,7 @@ final readonly class TrabajadorService
     {
         $sync = [];
         foreach ($request->especialidades as $id) {
-            $nivel = $request->input('nivel_' . $id, NivelExperiencia::Basico->value);
+            $nivel = $request->input('nivel_'.$id, NivelExperiencia::Basico->value);
             $sync[$id] = [
                 'nivel_experiencia' => $nivel,
                 'es_principal' => $request->especialidad_placement == $id ? 1 : 0,

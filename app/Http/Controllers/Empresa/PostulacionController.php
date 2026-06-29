@@ -30,7 +30,7 @@ final class PostulacionController extends Controller
         $empresa = $this->getEmpresa();
         $ofertaId = $request->input('oferta');
 
-        if (!$ofertaId) {
+        if (! $ofertaId) {
             return redirect()->route('empresa.ofertas.index');
         }
 
@@ -72,10 +72,7 @@ final class PostulacionController extends Controller
             'notas' => ['required', 'string', 'max:1000'],
         ]);
 
-        $empresa = $this->getEmpresa();
-        if ($postulacion->oferta->empresa_id !== $empresa->id) {
-            abort(403);
-        }
+        $this->authorize('update', $postulacion);
 
         $postulacion->update(['notas_empresa' => $request->input('notas')]);
 
@@ -90,7 +87,7 @@ final class PostulacionController extends Controller
             ->whereHas('oferta', fn ($q) => $q->where('empresa_id', $empresa->id))
             ->exists();
 
-        if (!$yaPostulado) {
+        if (! $yaPostulado) {
             abort(403);
         }
 

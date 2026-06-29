@@ -15,7 +15,7 @@ final class TrabajadorPerfilUpdateRequest extends FormRequest
         return [
             'nombre' => ['required', 'string', 'max:50'],
             'apellido' => ['required', 'string', 'max:50'],
-            'dni' => ['nullable', 'string', 'max:10', 'unique:trabajadores,dni,' . $trabajadorId],
+            'dni' => ['nullable', 'string', 'max:10', 'unique:trabajadores,dni,'.$trabajadorId],
             'telefono' => ['nullable', 'string', 'max:20'],
             'descripcion' => ['nullable', 'string', 'max:500'],
             'anios_experiencia' => ['nullable', 'integer', 'min:0', 'max:50'],

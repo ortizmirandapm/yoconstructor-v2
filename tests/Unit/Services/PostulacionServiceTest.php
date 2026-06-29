@@ -8,7 +8,6 @@ use App\Enums\PostulacionEstado;
 use App\Models\Oferta;
 use App\Models\Postulacion;
 use App\Models\Trabajador;
-use App\Models\User;
 use App\Services\PostulacionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -22,7 +21,7 @@ final class PostulacionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new PostulacionService();
+        $this->service = new PostulacionService;
     }
 
     public function test_creates_postulacion(): void

@@ -13,7 +13,7 @@ final class EsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->tipo === UserTipo::Admin->value) {
+        if (auth()->check() && auth()->user()->tipo === UserTipo::Admin) {
             return $next($request);
         }
 

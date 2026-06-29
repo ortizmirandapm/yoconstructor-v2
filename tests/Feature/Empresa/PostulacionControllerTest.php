@@ -18,7 +18,9 @@ final class PostulacionControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Empresa $empresa;
+
     private Oferta $oferta;
 
     protected function setUp(): void

@@ -16,6 +16,7 @@ final class OfertaControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Empresa $empresa;
 
     protected function setUp(): void

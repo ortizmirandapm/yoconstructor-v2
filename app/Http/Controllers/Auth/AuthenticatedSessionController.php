@@ -28,13 +28,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $tipo = auth()->user()->tipo;
+        $tipo = auth()->user()->tipo->value;
 
         return match ($tipo) {
-            'empresa'    => redirect()->route('empresa.dashboard'),
+            'empresa' => redirect()->route('empresa.dashboard'),
             'trabajador' => redirect()->route('home'),
-            'admin'      => redirect()->route('admin.dashboard'),
-            default      => redirect()->route('home'),
+            'admin' => redirect()->route('admin.dashboard'),
+            default => redirect()->route('home'),
         };
     }
 

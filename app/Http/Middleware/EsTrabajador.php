@@ -13,7 +13,7 @@ final class EsTrabajador
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->tipo === UserTipo::Trabajador->value) {
+        if (auth()->check() && auth()->user()->tipo === UserTipo::Trabajador) {
             return $next($request);
         }
 

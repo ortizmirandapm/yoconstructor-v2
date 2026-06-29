@@ -130,7 +130,7 @@
         <div class="space-y-6">
             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8">
                 @auth
-                    @if (auth()->user()->tipo === 'trabajador')
+                    @if (auth()->user()->tipo === \App\Enums\UserTipo::Trabajador)
                         @if ($yaPostulado)
                         <div class="text-center">
                             <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -151,7 +151,7 @@
                         </a>
                         <p class="text-xs text-gray-400 mt-2 text-center">Te redirigiremos para confirmar tu postulación.</p>
                         @endif
-                    @elseif (auth()->user()->tipo === 'empresa')
+                    @elseif (auth()->user()->tipo === \App\Enums\UserTipo::Empresa)
                         <div class="text-center">
                             <p class="text-gray-500 text-sm">Las empresas no pueden postularse a ofertas.</p>
                         </div>

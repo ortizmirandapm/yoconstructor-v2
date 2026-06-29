@@ -13,7 +13,7 @@ final class UpdateRubroRequest extends FormRequest
         $rubroId = $this->route('rubro');
 
         return [
-            'nombre' => ['required', 'string', 'max:100', 'unique:rubros,nombre,' . $rubroId],
+            'nombre' => ['required', 'string', 'max:100', 'unique:rubros,nombre,'.$rubroId],
             'descripcion' => ['nullable', 'string'],
         ];
     }

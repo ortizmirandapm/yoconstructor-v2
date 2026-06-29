@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Especialidad;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,14 +19,20 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        Especialidad::factory()->create(['id' => 1]);
+
         $response = $this->post('/register', [
-            'name' => 'Test User',
+            'tipo' => 'trabajador',
+            'nombre' => 'Juan',
+            'apellido' => 'Perez',
+            'dni' => '12345678',
+            'especialidad_id' => 1,
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('home', absolute: false));
     }
 }

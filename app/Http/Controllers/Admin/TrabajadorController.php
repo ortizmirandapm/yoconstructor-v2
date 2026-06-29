@@ -10,8 +10,7 @@ use App\Http\Requests\Admin\UpdateTrabajadorRequest;
 use App\Models\Especialidad;
 use App\Models\Provincia;
 use App\Models\Trabajador;
-use App\Models\User;
-use DB;
+use App\Services\Admin\AdminTrabajadorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,19 +18,17 @@ use Illuminate\View\View;
 
 final class TrabajadorController extends Controller
 {
+    public function __construct(
+        private readonly AdminTrabajadorService $trabajadorService,
+    ) {}
+
     public function index(Request $request): View
     {
         $query = Trabajador::with('user', 'provincia', 'especialidades')
             ->withCount('postulaciones');
 
         if ($search = $request->get('buscar')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('apellido', 'like', "%{$search}%")
-                  ->orWhere(DB::raw("CONCAT(nombre, ' ', apellido)"), 'like', "%{$search}%")
-                  ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%")
-                      ->orWhere('name', 'like', "%{$search}%"));
-            });
+            $query->search($search);
         }
 
         if ($request->filled('estado')) {
@@ -67,27 +64,7 @@ final class TrabajadorController extends Controller
 
     public function store(StoreTrabajadorRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'name' => trim($validated['nombre'] . ' ' . $validated['apellido']),
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-                'tipo' => 'trabajador',
-                'estado' => true,
-            ]);
-
-            Trabajador::create([
-                'user_id' => $user->id,
-                'nombre' => $validated['nombre'],
-                'apellido' => $validated['apellido'],
-                'nombre_titulo' => $validated['nombre_titulo'] ?? null,
-                'dni' => $validated['dni'] ?? null,
-                'telefono' => $validated['telefono'] ?? null,
-                'provincia_preferencia_id' => $validated['provincia_preferencia_id'] ?? null,
-            ]);
-        });
+        $this->trabajadorService->crear($request->validated());
 
         return redirect()->route('admin.trabajadores.index')
             ->with('success', 'Trabajador creado correctamente.');
@@ -102,29 +79,11 @@ final class TrabajadorController extends Controller
 
     public function update(UpdateTrabajadorRequest $request, Trabajador $trabajador): RedirectResponse
     {
-        $validated = $request->validated();
-
-        DB::transaction(function () use ($validated, $trabajador, $request) {
-            $trabajador->update([
-                'nombre' => $validated['nombre'],
-                'apellido' => $validated['apellido'],
-                'nombre_titulo' => $validated['nombre_titulo'] ?? null,
-                'dni' => $validated['dni'] ?? null,
-                'telefono' => $validated['telefono'] ?? null,
-                'provincia_preferencia_id' => $validated['provincia_preferencia_id'] ?? null,
-            ]);
-
-            $userData = [
-                'name' => trim($validated['nombre'] . ' ' . $validated['apellido']),
-                'email' => $validated['email'],
-            ];
-
-            if ($request->filled('password')) {
-                $userData['password'] = $request->password;
-            }
-
-            $trabajador->user->update($userData);
-        });
+        $this->trabajadorService->actualizar(
+            $trabajador,
+            $request->validated(),
+            $request->filled('password') ? $request->password : null,
+        );
 
         return redirect()->route('admin.trabajadores.index')
             ->with('success', 'Trabajador actualizado correctamente.');
@@ -132,10 +91,9 @@ final class TrabajadorController extends Controller
 
     public function cambiarEstado(Trabajador $trabajador): RedirectResponse
     {
-        $user = $trabajador->user;
-        $user->update(['estado' => !$user->estado]);
+        $this->trabajadorService->cambiarEstado($trabajador);
 
-        $mensaje = $user->estado
+        $mensaje = $trabajador->fresh()->user->estado
             ? 'Trabajador activado correctamente.'
             : 'Trabajador desactivado correctamente.';
 
@@ -144,14 +102,7 @@ final class TrabajadorController extends Controller
 
     public function destroy(Trabajador $trabajador): RedirectResponse
     {
-        DB::transaction(function () use ($trabajador) {
-            DB::table('postulaciones')->where('trabajador_id', $trabajador->id)->delete();
-            DB::table('notifications')
-                ->where('notifiable_id', $trabajador->user_id)
-                ->where('notifiable_type', User::class)
-                ->delete();
-            $trabajador->user()->delete();
-        });
+        $this->trabajadorService->eliminar($trabajador);
 
         return redirect()->route('admin.trabajadores.index')
             ->with('success', 'Trabajador eliminado correctamente.');

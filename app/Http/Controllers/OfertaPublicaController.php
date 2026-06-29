@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Enums\TipoContrato;
-use App\Http\Controllers\Controller;
+use App\Enums\UserTipo;
+use App\Jobs\IncrementarVisitaOferta;
 use App\Models\Especialidad;
 use App\Models\Oferta;
 use App\Models\Provincia;
@@ -30,13 +31,13 @@ final class OfertaPublicaController extends Controller
         $prefProvincia = null;
         $prefLocalidad = null;
 
-        if (auth()->check() && auth()->user()->tipo === 'trabajador') {
+        if (auth()->check() && auth()->user()->tipo === UserTipo::Trabajador) {
             $trabajador = auth()->user()->trabajador;
             $trabajadorId = $trabajador->id;
             $prefProvincia = $trabajador->provincia_preferencia_id;
             $prefLocalidad = $trabajador->localidad_preferencia_id;
 
-            $ofertas->loadCount(['postulaciones as ya_postulado' => fn($q) => $q->where('trabajador_id', $trabajadorId)]);
+            $ofertas->loadCount(['postulaciones as ya_postulado' => fn ($q) => $q->where('trabajador_id', $trabajadorId)]);
         }
 
         $especialidades = Especialidad::where('estado', true)->orderBy('nombre')->get();
@@ -58,11 +59,11 @@ final class OfertaPublicaController extends Controller
 
     public function show(Oferta $oferta): View
     {
-        if (!$oferta->estado->esActiva()) {
+        if (! $oferta->estado->esActiva()) {
             abort(404);
         }
 
-        $oferta->increment('visitas');
+        IncrementarVisitaOferta::dispatch($oferta);
         $oferta->load(['empresa', 'especialidades', 'provincia', 'localidad']);
 
         $totalPostulantes = $oferta->postulaciones()->count();
@@ -72,7 +73,7 @@ final class OfertaPublicaController extends Controller
         $prefProvincia = null;
         $prefLocalidad = null;
 
-        if (auth()->check() && auth()->user()->tipo === 'trabajador') {
+        if (auth()->check() && auth()->user()->tipo === UserTipo::Trabajador) {
             $trabajador = auth()->user()->trabajador;
             $yaPostulado = $oferta->postulaciones()
                 ->where('trabajador_id', $trabajador->id)

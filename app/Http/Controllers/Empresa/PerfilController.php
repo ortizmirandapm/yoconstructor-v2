@@ -9,7 +9,6 @@ use App\Http\Requests\EmpresaPerfilUpdateRequest;
 use App\Models\Provincia;
 use App\Models\Rubro;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class PerfilController extends Controller
@@ -30,7 +29,7 @@ final class PerfilController extends Controller
 
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $filename = 'logo_' . $empresa->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = 'logo_'.$empresa->id.'_'.time().'.'.$file->getClientOriginalExtension();
             $path = $file->storeAs('uploads/logos', $filename, 'public');
             $data['logo'] = $filename;
         }

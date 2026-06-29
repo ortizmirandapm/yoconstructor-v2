@@ -8,7 +8,6 @@ use App\Models\Trabajador;
 use App\Models\User;
 use App\Notifications\AlertaSistema;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Notifications\DatabaseNotification;
 
 final readonly class NotificacionService
 {
@@ -22,7 +21,7 @@ final readonly class NotificacionService
 
         $query = $user->notifications();
         if ($filtro !== 'todas' && isset($typeClassMap[$filtro])) {
-            $query->where('type', 'like', '%' . $typeClassMap[$filtro]);
+            $query->where('type', 'like', '%'.$typeClassMap[$filtro]);
         }
 
         return $query->orderBy('created_at', 'desc')->paginate(15);
@@ -63,25 +62,37 @@ final readonly class NotificacionService
 
     public function chequearPerfilIncompleto(User $user, ?Trabajador $trabajador): void
     {
-        if (!$trabajador) {
+        if (! $trabajador) {
             return;
         }
 
         $faltantes = [];
 
-        if (empty($trabajador->descripcion)) $faltantes[] = 'descripción profesional';
-        if (empty($trabajador->telefono)) $faltantes[] = 'teléfono de contacto';
-        if (empty($trabajador->imagen_perfil)) $faltantes[] = 'foto de perfil';
-        if (empty($trabajador->curriculum_pdf)) $faltantes[] = 'curriculum vitae';
-        if ($trabajador->especialidades()->count() === 0) $faltantes[] = 'especialidades';
-        if (empty($trabajador->provincia_preferencia_id)) $faltantes[] = 'provincia de preferencia';
+        if (empty($trabajador->descripcion)) {
+            $faltantes[] = 'descripción profesional';
+        }
+        if (empty($trabajador->telefono)) {
+            $faltantes[] = 'teléfono de contacto';
+        }
+        if (empty($trabajador->imagen_perfil)) {
+            $faltantes[] = 'foto de perfil';
+        }
+        if (empty($trabajador->curriculum_pdf)) {
+            $faltantes[] = 'curriculum vitae';
+        }
+        if ($trabajador->especialidades()->count() === 0) {
+            $faltantes[] = 'especialidades';
+        }
+        if (empty($trabajador->provincia_preferencia_id)) {
+            $faltantes[] = 'provincia de preferencia';
+        }
 
         if (empty($faltantes)) {
             return;
         }
 
         $titulo = 'Completá tu perfil para recibir mejores ofertas';
-        $mensaje = 'Faltan completar: ' . implode(', ', $faltantes) . '.';
+        $mensaje = 'Faltan completar: '.implode(', ', $faltantes).'.';
         $url = route('trabajador.perfil.edit');
 
         $alreadyExists = $user->notifications()
@@ -90,7 +101,7 @@ final readonly class NotificacionService
             ->whereNull('read_at')
             ->exists();
 
-        if (!$alreadyExists) {
+        if (! $alreadyExists) {
             $user->notify(new AlertaSistema($titulo, $mensaje, $url));
         }
     }

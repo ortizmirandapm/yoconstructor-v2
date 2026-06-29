@@ -22,7 +22,7 @@ final class NotificacionController extends Controller
         $filtro = $request->query('filtro', 'todas');
         $filtrosValidos = ['todas', 'postulacion', 'oferta', 'sistema'];
 
-        if (!in_array($filtro, $filtrosValidos, true)) {
+        if (! in_array($filtro, $filtrosValidos, true)) {
             $filtro = 'todas';
         }
 
@@ -37,12 +37,14 @@ final class NotificacionController extends Controller
     public function marcarLeida(string $id): RedirectResponse
     {
         $this->notificacionService->marcarLeida(auth()->user(), $id);
+
         return back();
     }
 
     public function marcarTodasLeidas(): RedirectResponse
     {
         $this->notificacionService->marcarTodasLeidas(auth()->user());
+
         return back()->with('success', 'Todas las notificaciones marcadas como leídas.');
     }
 }

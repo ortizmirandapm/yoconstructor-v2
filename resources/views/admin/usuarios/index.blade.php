@@ -36,10 +36,10 @@
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $usuario->email }}</td>
                             <td class="px-6 py-4">
                                 <span class="text-xs px-2 py-1 rounded-full
-                                    {{ $usuario->tipo === 'admin' ? 'bg-red-100 text-red-700' : '' }}
-                                    {{ $usuario->tipo === 'empresa' ? 'bg-blue-100 text-blue-700' : '' }}
-                                    {{ $usuario->tipo === 'trabajador' ? 'bg-green-100 text-green-700' : '' }}">
-                                    {{ $usuario->tipo }}
+                                    {{ $usuario->tipo === \App\Enums\UserTipo::Admin ? 'bg-red-100 text-red-700' : '' }}
+                                    {{ $usuario->tipo === \App\Enums\UserTipo::Empresa ? 'bg-blue-100 text-blue-700' : '' }}
+                                    {{ $usuario->tipo === \App\Enums\UserTipo::Trabajador ? 'bg-green-100 text-green-700' : '' }}">
+                                    {{ $usuario->tipo->value }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -50,7 +50,7 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-400">{{ $usuario->created_at->format('d/m/Y') }}</td>
                             <td class="px-6 py-4">
-                                @if($usuario->tipo !== 'admin')
+                                @if($usuario->tipo !== \App\Enums\UserTipo::Admin)
                                     <form action="{{ route('admin.usuarios.estado', $usuario) }}" method="POST">
                                         @csrf
                                         @method('PATCH')

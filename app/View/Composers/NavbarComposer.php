@@ -25,17 +25,17 @@ final class NavbarComposer
             $user = Auth::user();
             $navbarUser = $user;
             $navbarEmail = $user->email;
-            $navbarEsTrabajador = $user->tipo === UserTipo::Trabajador->value;
+            $navbarEsTrabajador = $user->tipo === UserTipo::Trabajador;
 
-            if ($user->tipo === UserTipo::Trabajador->value && $user->trabajador) {
+            if ($user->tipo === UserTipo::Trabajador && $user->trabajador) {
                 $trabajador = $user->trabajador;
                 $navbarNombreCompleto = strtoupper(trim(
-                    ($trabajador->nombre ?? '') . ' ' . ($trabajador->apellido ?? '')
+                    ($trabajador->nombre ?? '').' '.($trabajador->apellido ?? '')
                 )) ?: $user->name;
                 $navbarTipoNombre = 'Trabajador';
 
-                if (!empty($trabajador->imagen_perfil)) {
-                    $path = 'uploads/perfil/' . $trabajador->imagen_perfil;
+                if (! empty($trabajador->imagen_perfil)) {
+                    $path = 'uploads/perfil/'.$trabajador->imagen_perfil;
                     $navbarFotoPerfil = file_exists(public_path($path))
                         ? asset($path)
                         : asset('img/profile.png');
@@ -47,7 +47,7 @@ final class NavbarComposer
                     ->take(5)
                     ->get();
 
-                $navbarUltimasNotis = $latestNotis->map(fn($n) => [
+                $navbarUltimasNotis = $latestNotis->map(fn ($n) => [
                     'id_notificacion' => $n->id,
                     'tipo' => $this->mapNotificationType($n->type),
                     'titulo' => $n->data['titulo'] ?? 'Notificación',
@@ -56,15 +56,15 @@ final class NavbarComposer
                     'url_accion' => $n->data['url'] ?? route('trabajador.notificaciones.index'),
                     'fecha_creacion' => $n->created_at,
                 ])->toArray();
-            } elseif ($user->tipo === UserTipo::Empresa->value) {
+            } elseif ($user->tipo === UserTipo::Empresa) {
                 $navbarNombreCompleto = $user->empresa?->nombre_empresa ?: $user->name;
                 $navbarTipoNombre = 'Empresa';
-            } elseif ($user->tipo === UserTipo::Admin->value) {
+            } elseif ($user->tipo === UserTipo::Admin) {
                 $navbarNombreCompleto = $user->name;
                 $navbarTipoNombre = 'Administrador';
             } else {
                 $navbarNombreCompleto = $user->name;
-                $navbarTipoNombre = $user->tipo ? ucfirst($user->tipo) : 'Usuario';
+                $navbarTipoNombre = $user->tipo ? ucfirst($user->tipo->value) : 'Usuario';
             }
         }
 
@@ -95,7 +95,7 @@ final class NavbarComposer
         $data = $notification->data;
 
         return match (class_basename($notification->type)) {
-            'NuevaOfertaMatch' => 'Nueva oferta de ' . ($data['empresa'] ?? '') . ' en ' . ($data['provincia'] ?? ''),
+            'NuevaOfertaMatch' => 'Nueva oferta de '.($data['empresa'] ?? '').' en '.($data['provincia'] ?? ''),
             default => $data['mensaje'] ?? 'Tienes una nueva notificación.',
         };
     }

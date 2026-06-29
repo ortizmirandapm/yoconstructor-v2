@@ -22,7 +22,7 @@ final class AdministradorController extends Controller
         if ($search = $request->get('buscar')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -91,7 +91,7 @@ final class AdministradorController extends Controller
                 ->with('error', 'No puedes desactivar tu propia cuenta.');
         }
 
-        $user->update(['estado' => !$user->estado]);
+        $user->update(['estado' => ! $user->estado]);
 
         $mensaje = $user->estado
             ? 'Administrador activado correctamente.'

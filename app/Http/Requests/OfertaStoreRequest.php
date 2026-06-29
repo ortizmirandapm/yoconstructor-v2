@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Enums\Modalidad;
+use App\Enums\OfertaEstado;
 use App\Enums\TipoContrato;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
@@ -29,7 +30,7 @@ final class OfertaStoreRequest extends FormRequest
             'especialidades' => ['required', 'array', 'min:1'],
             'especialidades.*' => ['exists:especialidades,id'],
             'especialidad_principal' => ['nullable', 'exists:especialidades,id'],
-            'estado' => ['nullable', 'string', 'in:Activa,Borrador'],
+            'estado' => ['nullable', 'string', 'in:'.OfertaEstado::Activa->value.','.OfertaEstado::Borrador->value],
         ];
     }
 

@@ -32,12 +32,6 @@ final class OfertaController extends Controller
     {
         $empresa = $this->getEmpresa();
 
-        $empresa->ofertas()
-            ->whereIn('estado', [OfertaEstado::Activa, OfertaEstado::Pausada])
-            ->whereNotNull('fecha_vencimiento')
-            ->where('fecha_vencimiento', '<', now()->startOfDay())
-            ->update(['estado' => OfertaEstado::Cerrada]);
-
         $query = $empresa->ofertas()
             ->where('estado', '!=', OfertaEstado::Borrador)
             ->with('especialidades', 'provincia')
@@ -46,13 +40,12 @@ final class OfertaController extends Controller
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search): void {
                 $q->where('titulo', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhere('descripcion', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('especialidad')) {
-            $query->whereHas('especialidades', fn($q) =>
-                $q->where('especialidades.id', $request->input('especialidad'))
+            $query->whereHas('especialidades', fn ($q) => $q->where('especialidades.id', $request->input('especialidad'))
             );
         }
 
@@ -160,13 +153,12 @@ final class OfertaController extends Controller
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search): void {
                 $q->where('titulo', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhere('descripcion', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('especialidad')) {
-            $query->whereHas('especialidades', fn($q) =>
-                $q->where('especialidades.id', $request->input('especialidad'))
+            $query->whereHas('especialidades', fn ($q) => $q->where('especialidades.id', $request->input('especialidad'))
             );
         }
 

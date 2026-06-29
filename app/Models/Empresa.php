@@ -44,7 +44,7 @@ final class Empresa extends Model
             return null;
         }
 
-        return 'storage/uploads/logos/' . $value;
+        return 'storage/uploads/logos/'.$value;
     }
 
     protected function casts(): array

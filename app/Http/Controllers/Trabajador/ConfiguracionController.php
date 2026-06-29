@@ -21,6 +21,7 @@ final class ConfiguracionController extends Controller
     public function edit(): View
     {
         $user = auth()->user();
+
         return view('trabajador.configuracion', compact('user'));
     }
 

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Especialidad;
 use Illuminate\Database\Seeder;
 
 class EspecialidadSeeder extends Seeder
@@ -32,7 +32,7 @@ class EspecialidadSeeder extends Seeder
         ];
 
         foreach ($especialidades as $esp) {
-            \App\Models\Especialidad::create($esp);
+            Especialidad::create($esp);
         }
     }
 }

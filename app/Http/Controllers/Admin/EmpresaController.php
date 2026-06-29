@@ -9,15 +9,19 @@ use App\Http\Requests\Admin\StoreEmpresaRequest;
 use App\Http\Requests\Admin\UpdateEmpresaRequest;
 use App\Models\Empresa;
 use App\Models\Rubro;
-use App\Models\User;
-use DB;
+use App\Services\Admin\AdminEmpresaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 final class EmpresaController extends Controller
 {
+    public function __construct(
+        private readonly AdminEmpresaService $empresaService,
+    ) {}
+
     public function index(Request $request): View
     {
         $query = Empresa::with('user', 'rubro')
@@ -26,10 +30,10 @@ final class EmpresaController extends Controller
         if ($search = $request->get('buscar')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_empresa', 'like', "%{$search}%")
-                  ->orWhere('razon_social', 'like', "%{$search}%")
-                  ->orWhere('cuit', 'like', "%{$search}%")
-                  ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%")
-                      ->orWhere('name', 'like', "%{$search}%"));
+                    ->orWhere('razon_social', 'like', "%{$search}%")
+                    ->orWhere('cuit', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%"));
             });
         }
 
@@ -69,28 +73,7 @@ final class EmpresaController extends Controller
 
     public function store(StoreEmpresaRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'name' => $validated['nombre'],
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-                'tipo' => 'empresa',
-                'estado' => true,
-            ]);
-
-            Empresa::create([
-                'user_id' => $user->id,
-                'nombre_empresa' => $validated['razon_social'],
-                'razon_social' => $validated['razon_social'],
-                'rubro_id' => $validated['rubro_id'],
-                'cuit' => $validated['cuit'],
-                'email_contacto' => $validated['email_contacto'],
-                'telefono' => $validated['telefono'],
-                'estado' => 'activo',
-            ]);
-        });
+        $this->empresaService->crear($request->validated());
 
         return redirect()->route('admin.empresas.index')
             ->with('success', 'Empresa creada correctamente.');
@@ -105,30 +88,11 @@ final class EmpresaController extends Controller
 
     public function update(UpdateEmpresaRequest $request, Empresa $empresa): RedirectResponse
     {
-        $validated = $request->validated();
-
-        DB::transaction(function () use ($validated, $empresa, $request) {
-            $userData = [
-                'name' => $validated['nombre'],
-                'email' => $validated['email'],
-            ];
-
-            if ($request->filled('password')) {
-                $userData['password'] = $request->password;
-            }
-
-            $empresa->user->update($userData);
-
-            $empresa->update([
-                'nombre_empresa' => $validated['razon_social'],
-                'razon_social' => $validated['razon_social'],
-                'rubro_id' => $validated['rubro_id'],
-                'cuit' => $validated['cuit'],
-                'email_contacto' => $validated['email_contacto'],
-                'telefono' => $validated['telefono'],
-                'domicilio' => $validated['domicilio'] ?? $empresa->domicilio,
-            ]);
-        });
+        $this->empresaService->actualizar(
+            $empresa,
+            $request->validated(),
+            $request->filled('password') ? $request->password : null,
+        );
 
         return redirect()->route('admin.empresas.index')
             ->with('success', 'Empresa actualizada correctamente.');
@@ -136,17 +100,9 @@ final class EmpresaController extends Controller
 
     public function cambiarEstado(Empresa $empresa): RedirectResponse
     {
-        $nuevoEstado = $empresa->estado === 'activo' ? 'inactivo' : 'activo';
+        $this->empresaService->cambiarEstado($empresa);
 
-        DB::transaction(function () use ($empresa, $nuevoEstado) {
-            $empresa->update(['estado' => $nuevoEstado]);
-
-            if ($nuevoEstado === 'inactivo') {
-                $empresa->ofertas()->where('estado', 'Activa')->update(['estado' => 'Pausada']);
-            }
-
-            $empresa->user->update(['estado' => $nuevoEstado === 'activo']);
-        });
+        $nuevoEstado = $empresa->fresh()->estado;
 
         $mensaje = $nuevoEstado === 'activo'
             ? 'Empresa activada correctamente.'
@@ -157,15 +113,7 @@ final class EmpresaController extends Controller
 
     public function destroy(Empresa $empresa): RedirectResponse
     {
-        DB::transaction(function () use ($empresa) {
-            $ofertaIds = $empresa->ofertas()->pluck('id');
-
-            DB::table('postulaciones')->whereIn('oferta_id', $ofertaIds)->delete();
-            $empresa->ofertas()->delete();
-            DB::table('reclutadores')->where('empresa_id', $empresa->id)->delete();
-            $empresa->user()->delete();
-            $empresa->delete();
-        });
+        $this->empresaService->eliminar($empresa);
 
         return redirect()->route('admin.empresas.index')
             ->with('success', 'Empresa eliminada correctamente.');

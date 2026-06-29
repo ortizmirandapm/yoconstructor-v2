@@ -20,7 +20,7 @@ final class UpdateAdministradorRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$userId],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
         ];
     }

@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OfertaEstado;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOfertaRequest;
-use App\Models\Especialidad;
 use App\Models\Oferta;
 use App\Models\Rubro;
+use App\Services\Admin\AdminOfertaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +17,10 @@ use Illuminate\View\View;
 
 final class OfertaAdminController extends Controller
 {
+    public function __construct(
+        private readonly AdminOfertaService $ofertaService,
+    ) {}
+
     public function index(Request $request): View
     {
         $query = Oferta::with('empresa', 'rubro')
@@ -25,7 +29,7 @@ final class OfertaAdminController extends Controller
         if ($search = $request->get('buscar')) {
             $query->where(function ($q) use ($search) {
                 $q->where('titulo', 'like', "%{$search}%")
-                  ->orWhereHas('empresa', fn ($e) => $e->where('nombre_empresa', 'like', "%{$search}%"));
+                    ->orWhereHas('empresa', fn ($e) => $e->where('nombre_empresa', 'like', "%{$search}%"));
             });
         }
 
@@ -70,22 +74,14 @@ final class OfertaAdminController extends Controller
 
     public function cambiarEstado(Oferta $oferta): RedirectResponse
     {
-        $nuevoEstado = $oferta->estado === OfertaEstado::Activa
-            ? OfertaEstado::Pausada
-            : OfertaEstado::Activa;
-
-        $oferta->update(['estado' => $nuevoEstado]);
-
-        $mensaje = $nuevoEstado === OfertaEstado::Activa
-            ? 'Oferta activada correctamente.'
-            : 'Oferta pausada correctamente.';
+        $mensaje = $this->ofertaService->cambiarEstado($oferta);
 
         return redirect()->route('admin.ofertas.index')->with('success', $mensaje);
     }
 
     public function destroy(Oferta $oferta): RedirectResponse
     {
-        $oferta->delete();
+        $this->ofertaService->eliminar($oferta);
 
         return redirect()->route('admin.ofertas.index')
             ->with('success', 'Oferta eliminada correctamente.');

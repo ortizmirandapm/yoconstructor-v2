@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Provincia;
 use Illuminate\Database\Seeder;
 
 class ProvinciaSeeder extends Seeder
@@ -40,7 +40,7 @@ class ProvinciaSeeder extends Seeder
         ];
 
         foreach ($provincias as $provincia) {
-            \App\Models\Provincia::create($provincia);
+            Provincia::create($provincia);
         }
     }
 }

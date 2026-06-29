@@ -22,10 +22,10 @@ final class UpdateTrabajadorRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:50'],
             'apellido' => ['required', 'string', 'max:50'],
             'nombre_titulo' => ['nullable', 'string', 'max:50'],
-            'dni' => ['nullable', 'string', 'max:20', 'unique:trabajadores,dni,' . $trabajadorId],
+            'dni' => ['nullable', 'string', 'max:20', 'unique:trabajadores,dni,'.$trabajadorId],
             'telefono' => ['nullable', 'string', 'max:20'],
             'provincia_preferencia_id' => ['nullable', 'exists:provincias,id'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$userId],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
         ];
     }

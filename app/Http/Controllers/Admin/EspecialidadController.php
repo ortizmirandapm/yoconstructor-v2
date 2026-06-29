@@ -22,7 +22,7 @@ final class EspecialidadController extends Controller
         if ($search = $request->get('buscar')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhere('descripcion', 'like', "%{$search}%");
             });
         }
 
@@ -69,7 +69,7 @@ final class EspecialidadController extends Controller
 
     public function cambiarEstado(Especialidad $especialidad): RedirectResponse
     {
-        $especialidad->update(['estado' => !$especialidad->estado]);
+        $especialidad->update(['estado' => ! $especialidad->estado]);
 
         $mensaje = $especialidad->estado
             ? 'Especialidad activada correctamente.'

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\UserTipo;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -36,6 +37,7 @@ final class User extends Authenticatable
             'password' => 'hashed',
             'visible_busqueda' => 'boolean',
             'estado' => 'boolean',
+            'tipo' => UserTipo::class,
         ];
     }
 

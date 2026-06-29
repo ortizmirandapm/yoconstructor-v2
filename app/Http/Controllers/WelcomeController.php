@@ -21,14 +21,14 @@ final class WelcomeController extends Controller
 
         $rubros = Rubro::where('estado', true)
             ->with([
-                'ofertas' => fn($q) => $q->where('estado', 'Activa'),
+                'ofertas' => fn ($q) => $q->where('estado', 'Activa'),
                 'ofertas.especialidades',
             ])
             ->orderBy('orden')
             ->get()
             ->map(function ($rubro) {
                 $especialidades = $rubro->ofertas
-                    ->flatMap(fn($o) => $o->especialidades)
+                    ->flatMap(fn ($o) => $o->especialidades)
                     ->unique('id')
                     ->pluck('nombre')
                     ->sort()
@@ -37,12 +37,13 @@ final class WelcomeController extends Controller
 
                 $rubro->especialidades_list = $especialidades;
                 $rubro->ofertas_activas = $rubro->ofertas->count();
+
                 return $rubro;
             });
 
         $empresasDestacadas = Empresa::where('estado', 'activo')
             ->with('rubro')
-            ->withCount(['ofertas as ofertas_activas' => fn($q) => $q->where('estado', 'Activa')])
+            ->withCount(['ofertas as ofertas_activas' => fn ($q) => $q->where('estado', 'Activa')])
             ->orderByDesc('ofertas_activas')
             ->orderBy('nombre_empresa')
             ->take(3)

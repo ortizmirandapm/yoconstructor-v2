@@ -2,7 +2,6 @@
     $currentRoute = request()->route()->getName();
     $empresaUser = auth()->user();
     $empresaData = $empresaUser->empresa;
-    $empresaRoutes = ['empresa.perfil.edit'];
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -42,38 +41,15 @@
                     </a>
                 </li>
 
-                {{-- Mi Empresa / Perfil --}}
+                {{-- Perfil de Empresa --}}
                 <li>
-                    <button type="button" onclick="toggleSubmenu('empresa')"
-                        class="flex items-center w-full p-3 text-gray-900 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 group transition-all">
-                        <svg class="w-5 h-5 transition duration-75 group-hover:text-indigo-600 {{ in_array($currentRoute, $empresaRoutes) ? 'text-indigo-600' : 'text-gray-500' }}" fill="currentColor" viewBox="0 0 20 20">
+                    <a href="{{ route('empresa.perfil.edit') }}"
+                        class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 group transition-all {{ request()->route()->named('empresa.perfil.edit') ? 'bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 font-semibold' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 group-hover:text-indigo-600 {{ request()->route()->named('empresa.perfil.edit') ? 'text-indigo-600' : 'text-gray-500' }}" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
                         </svg>
-                        <span class="flex-1 ml-3 text-left">Mi Empresa</span>
-                        <svg id="arrow-empresa" class="w-4 h-4 transition-transform {{ in_array($currentRoute, $empresaRoutes) ? 'rotate-180' : '' }}" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                    <ul id="submenu-empresa" class="{{ in_array($currentRoute, $empresaRoutes) ? '' : 'hidden' }} py-2 space-y-2">
-                        <li>
-                            <a href="{{ route('empresa.perfil.edit') }}"
-                                class="flex items-center w-full p-2 pl-11 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-indigo-600 transition duration-75 {{ request()->route()->named('empresa.perfil.edit') ? 'bg-gray-100 text-indigo-600 font-medium' : '' }}">
-                                Perfil
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center w-full p-2 pl-11 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-indigo-600 transition duration-75">
-                                Reclutadores
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center w-full p-2 pl-11 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-indigo-600 transition duration-75">
-                                Auditoría
-                            </a>
-                        </li>
-                    </ul>
+                        <span class="ml-3">Mi Empresa</span>
+                    </a>
                 </li>
 
                 {{-- Nueva Oferta --}}
@@ -130,15 +106,7 @@
                     </a>
                 </li>
 
-                {{-- Buscar Perfiles --}}
-                <li>
-                    <a href="#" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 group transition-all">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="ml-3">Buscar Perfiles</span>
-                    </a>
-                </li>
+
 
             </ul>
 
@@ -218,35 +186,7 @@
     </div>
 
     {{-- MODAL CERRAR SESIÓN --}}
-    <div id="modalCerrarSesion" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
-            <div class="px-6 py-5 border-b border-gray-200 flex items-center gap-3">
-                <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-900">Cerrar sesión</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Esta acción cerrará tu cuenta</p>
-                </div>
-            </div>
-            <div class="px-6 py-5">
-                <p class="text-sm text-gray-600">¿Estás seguro que querés cerrar sesión?</p>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end gap-3">
-                <button type="button" onclick="cerrarModalSesion()"
-                    class="px-4 py-2.5 border border-gray-300 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-100 transition">
-                    Cancelar
-                </button>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        Sí, cerrar sesión
-                    </button>
-                </form>
-            </div>
-        </div>
+    <x-logout-modal />
     </div>
 
     <script>
@@ -281,11 +221,16 @@
             document.getElementById('modalCerrarSesion').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-        document.getElementById('modalCerrarSesion').addEventListener('click', function(e) {
-            if (e.target === this) cerrarModalSesion();
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') cerrarModalSesion();
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('modalCerrarSesion');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) cerrarModalSesion();
+                });
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') cerrarModalSesion();
+            });
         });
     </script>
 

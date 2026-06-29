@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
 use App\Models\Especialidad;
 use App\Models\Provincia;
 use App\Models\Rubro;
-use App\Models\User;
-use App\Models\Empresa;
 use App\Models\Trabajador;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -24,8 +23,8 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         return view('auth.register', [
-            'provincias'     => Provincia::where('estado', true)->orderBy('nombre')->get(),
-            'rubros'         => Rubro::where('estado', true)->orderBy('orden')->orderBy('nombre')->get(),
+            'provincias' => Provincia::where('estado', true)->orderBy('nombre')->get(),
+            'rubros' => Rubro::where('estado', true)->orderBy('orden')->orderBy('nombre')->get(),
             'especialidades' => Especialidad::where('estado', true)->orderBy('nombre')->get(),
         ]);
     }
@@ -35,16 +34,16 @@ class RegisteredUserController extends Controller
         $tipo = $request->input('tipo');
 
         $commonRules = [
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'tipo'     => ['required', 'in:trabajador,empresa'],
+            'tipo' => ['required', 'in:trabajador,empresa'],
         ];
 
         if ($tipo === 'trabajador') {
             $rules = array_merge($commonRules, [
-                'nombre'          => ['required', 'string', 'max:50'],
-                'apellido'        => ['required', 'string', 'max:50'],
-                'dni'             => ['required', 'string', 'max:20', 'unique:trabajadores,dni'],
+                'nombre' => ['required', 'string', 'max:50'],
+                'apellido' => ['required', 'string', 'max:50'],
+                'dni' => ['required', 'string', 'max:20', 'unique:trabajadores,dni'],
                 'especialidad_id' => ['required', 'exists:especialidades,id'],
             ]);
 
@@ -52,22 +51,22 @@ class RegisteredUserController extends Controller
 
             DB::transaction(function () use ($request) {
                 $user = User::create([
-                    'name'     => $request->nombre . ' ' . $request->apellido,
-                    'email'    => $request->email,
+                    'name' => $request->nombre.' '.$request->apellido,
+                    'email' => $request->email,
                     'password' => Hash::make($request->password),
-                    'tipo'     => 'trabajador',
-                    'estado'   => true,
+                    'tipo' => 'trabajador',
+                    'estado' => true,
                 ]);
 
                 $trabajador = Trabajador::create([
-                    'user_id'  => $user->id,
-                    'nombre'   => $request->nombre,
+                    'user_id' => $user->id,
+                    'nombre' => $request->nombre,
                     'apellido' => $request->apellido,
-                    'dni'      => $request->dni,
+                    'dni' => $request->dni,
                 ]);
 
                 $trabajador->especialidades()->attach($request->especialidad_id, [
-                    'es_principal'     => true,
+                    'es_principal' => true,
                     'nivel_experiencia' => 'Básico',
                 ]);
 
@@ -77,11 +76,11 @@ class RegisteredUserController extends Controller
         } else {
             $rules = array_merge($commonRules, [
                 'nombre_empresa' => ['required', 'string', 'max:200'],
-                'razon_social'   => ['nullable', 'string', 'max:100'],
-                'cuit'           => ['required', 'string', 'max:20', 'unique:empresas,cuit'],
-                'rubro_id'       => ['required', 'exists:rubros,id'],
-                'provincia_id'   => ['required', 'exists:provincias,id'],
-                'telefono'       => ['nullable', 'string', 'max:20'],
+                'razon_social' => ['nullable', 'string', 'max:100'],
+                'cuit' => ['required', 'string', 'max:20', 'unique:empresas,cuit'],
+                'rubro_id' => ['required', 'exists:rubros,id'],
+                'provincia_id' => ['required', 'exists:provincias,id'],
+                'telefono' => ['nullable', 'string', 'max:20'],
                 'email_contacto' => ['nullable', 'string', 'email', 'max:100'],
             ]);
 
@@ -89,23 +88,23 @@ class RegisteredUserController extends Controller
 
             DB::transaction(function () use ($request) {
                 $user = User::create([
-                    'name'     => $request->nombre_empresa,
-                    'email'    => $request->email,
+                    'name' => $request->nombre_empresa,
+                    'email' => $request->email,
                     'password' => Hash::make($request->password),
-                    'tipo'     => 'empresa',
-                    'estado'   => true,
+                    'tipo' => 'empresa',
+                    'estado' => true,
                 ]);
 
                 Empresa::create([
-                    'user_id'       => $user->id,
+                    'user_id' => $user->id,
                     'nombre_empresa' => $request->nombre_empresa,
-                    'razon_social'   => $request->razon_social,
-                    'cuit'           => $request->cuit,
-                    'rubro_id'       => $request->rubro_id,
-                    'provincia_id'   => $request->provincia_id,
-                    'telefono'       => $request->telefono,
+                    'razon_social' => $request->razon_social,
+                    'cuit' => $request->cuit,
+                    'rubro_id' => $request->rubro_id,
+                    'provincia_id' => $request->provincia_id,
+                    'telefono' => $request->telefono,
                     'email_contacto' => $request->email_contacto,
-                    'estado'         => 'activo',
+                    'estado' => 'activo',
                 ]);
 
                 event(new Registered($user));
@@ -113,10 +112,13 @@ class RegisteredUserController extends Controller
             });
         }
 
-        return match (auth()->user()->tipo) {
-            'empresa'    => redirect()->intended(route('empresa.dashboard')),
+        $tipo = auth()->user()->tipo->value;
+
+        return match ($tipo) {
+            'empresa' => redirect()->intended(route('empresa.dashboard')),
             'trabajador' => redirect()->intended(route('home')),
-            default      => redirect()->intended(route('home')),
+            'admin' => redirect()->intended(route('admin.dashboard')),
+            default => redirect()->intended(route('home')),
         };
     }
 }

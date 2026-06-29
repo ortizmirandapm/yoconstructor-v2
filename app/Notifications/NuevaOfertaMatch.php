@@ -24,7 +24,7 @@ final class NuevaOfertaMatch extends Notification
             'empresa' => $this->oferta->empresa->nombre_empresa,
             'modalidad' => $this->oferta->modalidad?->value,
             'provincia' => $this->oferta->provincia?->nombre,
-            'url' => url('/ofertas/' . $this->oferta->id),
+            'url' => url('/ofertas/'.$this->oferta->id),
         ];
     }
 }

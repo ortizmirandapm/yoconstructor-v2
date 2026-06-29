@@ -22,7 +22,7 @@ final class RubroController extends Controller
         if ($search = $request->get('buscar')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('descripcion', 'like', "%{$search}%");
+                    ->orWhere('descripcion', 'like', "%{$search}%");
             });
         }
 
@@ -69,7 +69,7 @@ final class RubroController extends Controller
 
     public function cambiarEstado(Rubro $rubro): RedirectResponse
     {
-        $rubro->update(['estado' => !$rubro->estado]);
+        $rubro->update(['estado' => ! $rubro->estado]);
 
         $mensaje = $rubro->estado
             ? 'Rubro activado correctamente.'

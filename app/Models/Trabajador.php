@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\TrabajadorFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +36,14 @@ final class Trabajador extends Model
         'nombre_titulo',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'fecha_nacimiento' => 'date',
+            'anios_experiencia' => 'integer',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -50,6 +59,16 @@ final class Trabajador extends Model
     public function postulaciones(): HasMany
     {
         return $this->hasMany(Postulacion::class);
+    }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('nombre', 'like', "%{$term}%")
+                ->orWhere('apellido', 'like', "%{$term}%")
+                ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$term}%")
+                    ->orWhere('name', 'like', "%{$term}%"));
+        });
     }
 
     public function provincia(): BelongsTo

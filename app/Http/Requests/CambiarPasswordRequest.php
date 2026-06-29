@@ -14,7 +14,7 @@ final class CambiarPasswordRequest extends FormRequest
     {
         return [
             'current_password' => ['required', function (string $attribute, mixed $value, \Closure $fail) {
-                if (!Hash::check($value, $this->user()?->password)) {
+                if (! Hash::check($value, $this->user()?->password)) {
                     $fail('La contraseña actual no es correcta.');
                 }
             }],

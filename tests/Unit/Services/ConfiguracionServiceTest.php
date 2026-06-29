@@ -19,7 +19,7 @@ final class ConfiguracionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ConfiguracionService();
+        $this->service = new ConfiguracionService;
     }
 
     public function test_toggle_visibilidad(): void

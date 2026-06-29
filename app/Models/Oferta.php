@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Modalidad;
 use App\Enums\OfertaEstado;
 use App\Enums\TipoContrato;
-use App\Enums\Modalidad;
-use Database\Factories\OfertaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

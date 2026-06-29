@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Rubro;
 use Illuminate\Database\Seeder;
 
 class RubroSeeder extends Seeder
@@ -28,7 +28,7 @@ class RubroSeeder extends Seeder
         ];
 
         foreach ($rubros as $rubro) {
-            \App\Models\Rubro::create($rubro);
+            Rubro::create($rubro);
         }
     }
 }

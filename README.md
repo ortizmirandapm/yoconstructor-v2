@@ -1,10 +1,31 @@
 # YoConstructor V2
 
-Plataforma de empleo para el sector de la construcción en Argentina, desarrollada en Laravel 11. Permite a empresas publicar ofertas laborales y a trabajadores postularse según sus especialidades, con notificaciones automáticas por matching.
+YoConstructor V2
+
+Plataforma de empleo para el sector de la construcción desarrollada con Laravel 11.
+
+Migración completa desde PHP Vanilla para aprender arquitectura moderna,
+buenas prácticas y desarrollo asistido por IA.
+
 
 > Migración de [YoConstructor V1](https://github.com/ortizmirandapm/yoconstructor) — desarrollado originalmente en PHP vanilla/MySQL/TailwindCSS.
 
 ---
+## 🚀 Objetivos
+
+-   Aplicar Laravel en un proyecto real.
+-   Mejorar mantenibilidad y escalabilidad.
+-   Experimentar con desarrollo asistido por IA mediante OpenCode.
+
+---
+
+## 🧠 Desarrollo asistido por IA
+
+Durante la migración utilicé OpenCode junto con **AGENTS.md** y skills
+(Laravel Patterns, PHP Pro, Front-end Design, Tailwind CSS Patterns,
+Accessibility y Node.js Patterns). La IA aceleró tareas repetitivas y
+ayudó a mantener consistencia, mientras que las decisiones de
+arquitectura y revisión del código fueron realizadas manualmente.
 
 ## Características
 
@@ -29,6 +50,37 @@ Plataforma de empleo para el sector de la construcción en Argentina, desarrolla
 - **Herramientas:** Eloquent ORM, Observers, Policies, Seeders
 
 ---
+
+## 📸 Capturas
+
+### Página principal
+
+![Home](screenshots/home.png)
+
+---
+
+### Registro
+
+![Registro](screenshots/register.png)
+
+---
+
+### Panel de Administración
+
+![Admin](screenshots/admindashboard.PNG.PNG.png)
+
+---
+
+### Panel Empresa
+
+![Empresa](screenshots/empresadashboard.PNG.png)
+
+---
+
+### Panel Trabajador
+
+![Trabajador](screenshots/paneltrabajador.PNG.PNG.png)
+
 
 ## Instalación local
 
@@ -122,10 +174,22 @@ app/
 
 ---
 
+## 🛣️ Roadmap
+
+-   [x] Migración a Laravel 11
+-   [x] CRUD principales
+-   [x] Paneles
+-   [ ] Tests
+-   [ ] CI/CD
+-   [ ] Docker
+-   [ ] Integración con IA
+-   [ ] Chatbot
+-   [ ] Recomendador de ofertas
+
 ## Autor
 
 **Pablo Ortiz Miranda**
-- GitHub: [@ortizmirandapm](https://github.com/ortizmirandapm)
+
 - LinkedIn: [linkedin.com/in/ortizmirandapm](https://linkedin.com/in/ortizmirandapm)
 - Email: ortizmirandapm@gmail.com
 
