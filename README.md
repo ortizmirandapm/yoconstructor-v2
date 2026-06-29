@@ -67,19 +67,19 @@ arquitectura y revisión del código fueron realizadas manualmente.
 
 ### Panel de Administración
 
-![Admin](screenshots/admindashboard.PNG.PNG.png)
+![Admin](screenshots/admindashboard.png)
 
 ---
 
 ### Panel Empresa
 
-![Empresa](screenshots/empresadashboard.PNG.png)
+![Empresa](screenshots/empresadashboard.png)
 
 ---
 
 ### Panel Trabajador
 
-![Trabajador](screenshots/paneltrabajador.PNG.PNG.png)
+![Trabajador](screenshots/paneltrabajador.png)
 
 
 ## Instalación local
